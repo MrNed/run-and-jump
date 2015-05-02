@@ -2,7 +2,7 @@ function Play() {
   this.player = null;
   this.facing = 'left';
   this.jumpTimer = 0;
-  this.cursors = null;
+  this.controls = null;
   this.ground = null;
 };
 
@@ -34,33 +34,37 @@ Play.prototype = {
 
     this.game.physics.arcade.enable(this.player);
 
-    this.player.body.bounce.y = 0.3;
+    this.player.body.bounce.y = 0.2;
     this.player.body.gravity.y = 300;
     this.player.body.collideWorldBounds = true;
 
     this.player.animations.add('jump', ['blue_jump.png'], 10, true, true);
     this.player.animations.add('right', ['blue_walk_1.png', 'blue_walk_2.png'], 10, true);
 
-    this.cursors = this.input.keyboard.createCursorKeys();
+    this.game.input.keyboard.addKeyCapture([Phaser.Keyboard.SPACEBAR]);
+
+    this.controls = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    this.controls.onDown.add(this.jump, this.player);
+
+    this.input.onDown.add(this.jump, this.player);
   },
   update: function() {
     this.game.physics.arcade.collide(this.player, this.ground2);
 
-
     var standing = this.player.body.blocked.down || this.player.body.touching.down;
-    // this.player.body.velocity.x = 0;
 
     if (standing) {
-      // this.player.animations.stop();
       this.player.play('right');
     }
+  },
+  jump: function() {
+    var player = this;
+    var standing = player.body.blocked.down || player.body.touching.down;
 
-    if ((standing || this.time.time <= this.edgeTimer) && this.cursors.up.isDown && this.time.time > this.jumpTimer) {
-      this.player.animations.stop();
-      this.player.frameName = 'blue_jump.png';
-      this.player.body.velocity.y = -500;
-      this.jumpTimer = this.time.time + 750;
+    if (standing) {
+      player.animations.stop();
+      player.frameName = 'blue_jump.png';
+      player.body.velocity.y = -500;
     }
-
   }
 }
