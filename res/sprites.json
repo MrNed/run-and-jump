@@ -1,0 +1,40 @@
+{
+"frames": [
+	 {"filename":"blue_front.png",
+		"frame": {"x":86, "y":0, "w":41, "h":57},
+		"spriteSourceSize": {"x":3,"y":39,"w":48,"h":96},
+		"sourceSize": {"w":48,"h":96}
+	},
+	 {"filename":"blue_hit.png",
+		"frame": {"x":43, "y":0, "w":42, "h":57},
+		"spriteSourceSize": {"x":3,"y":39,"w":48,"h":96},
+		"sourceSize": {"w":48,"h":96}
+	},
+	 {"filename":"blue_jump.png",
+		"frame": {"x":0, "y":60, "w":42, "h":58},
+		"spriteSourceSize": {"x":3,"y":38,"w":48,"h":96},
+		"sourceSize": {"w":48,"h":96}
+	},
+	 {"filename":"blue_stand.png",
+		"frame": {"x":86, "y":58, "w":41, "h":56},
+		"spriteSourceSize": {"x":4,"y":40,"w":48,"h":96},
+		"sourceSize": {"w":48,"h":96}
+	},
+	 {"filename":"blue_walk_1.png",
+		"frame": {"x":43, "y":58, "w":42, "h":57},
+		"spriteSourceSize": {"x":3,"y":39,"w":48,"h":96},
+		"sourceSize": {"w":48,"h":96}
+	},
+	 {"filename":"blue_walk_2.png",
+		"frame": {"x":0, "y":0, "w":42, "h":59},
+		"spriteSourceSize": {"x":3,"y":37,"w":48,"h":96},
+		"sourceSize": {"w":48,"h":96}
+	}
+
+],
+"meta": {
+	"image": "sprites.png",
+	"size": {"w": 128, "h": 119},
+	"scale": "1"
+}
+}

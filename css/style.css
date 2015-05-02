@@ -1,0 +1,12 @@
+#game_cont {
+  width: 320px;
+  height: 480px;
+  margin: 0 auto;
+  position: relative;
+  top: 50%;
+  border: 1px solid #424242;
+}
+
+#game_cont canvas {
+  /*cursor: none !important;*/
+}
