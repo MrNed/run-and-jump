@@ -1,3 +1,22 @@
+var Enemy = function(game, x, y, key, enemyType, group) {
+  if (typeof ground === 'undefined') {
+    ground = game.world;
+  }
+
+  Phaser.Sprite.call(this, game, x, y, key, enemyType + '.png');
+
+  game.physics.arcade.enable(this);
+
+  this.body.velocity.x = -150;
+
+  this.animations.add('move', [enemyType + '.png', enemyType + '_move.png'], 5, true);
+  this.animations.play('move');
+
+  group.add(this);
+};
+
+Enemy.prototype = Object.create(Phaser.Sprite.prototype);
+Enemy.prototype.constructor = Enemy;
 var Ground = function(game, x, y, width, height) {
   Phaser.TileSprite.call(this, game, x, y, width, height, 'ground');
 
@@ -16,11 +35,9 @@ var Ground = function(game, x, y, width, height) {
 
 Ground.prototype = Object.create(Phaser.TileSprite.prototype);
 Ground.prototype.constructor = Ground;
-
-Ground.prototype.update = function() {
-
-};
 var Player = function(game, x, y, key, playerType, defaultFrame) {
+  this.playerType = playerType;
+
   if (typeof defaultFrame === 'undefined') {
     defaultFrame = 'walk_2';
   }
@@ -48,13 +65,25 @@ Player.prototype.onGround = function() {
 Player.prototype.jump = function() {
   if (this.onGround()) {
     this.animations.stop();
-    this.frameName = 'blue_jump.png';
+    this.frameName = this.playerType + '_jump.png';
     this.body.velocity.y = -500;
   }
 };
+
+Player.prototype.run = function() {
+  if (this.onGround()) {
+    this.play('runRight');
+  }
+}
+
+Player.prototype.hitEnemy = function() {
+  this.animations.stop();
+  this.frameName = this.playerType + '_hit.png';
+}
 var Play = function() {
   this.player = null;
   this.ground = null;
+  this.enemies = null;
 };
 
 Play.prototype = {
@@ -73,9 +102,13 @@ Play.prototype = {
     this.bg = this.game.add.tileSprite(0, 0, 480, 967, 'background');
     this.bg.autoScroll(-50, 0);
 
-    this.ground = new Ground(this.game, 0, this.game.height - 37, 448, 37);
+    this.ground = new Ground(this.game, 0, this.game.height - 48, 480, 48);
 
-    this.player = new Player(this.game, 48, this.game.height - 96, 'sprites', 'blue');
+    this.player = new Player(this.game, 48, this.game.height - 108, 'sprites', 'blue');
+
+    this.enemies = this.add.group();
+
+    var enemy = new Enemy(this.game, this.game.width - 48, this.game.height - 70, 'sprites', 'mouse', this.enemies);
 
     this.game.input.keyboard.addKeyCapture([Phaser.Keyboard.SPACEBAR]);
 
@@ -83,14 +116,16 @@ Play.prototype = {
     jumpKey.onDown.add(this.player.jump, this.player);
 
     this.input.onDown.add(this.player.jump, this.player);
-
   },
   update: function() {
     this.game.physics.arcade.collide(this.player, this.ground);
+    this.game.physics.arcade.collide(this.enemies, this.ground);
+    this.game.physics.arcade.collide(this.player, this.enemies, this.die, null, this);
 
-    if (this.player.onGround()) {
-      this.player.play('runRight');
-    }
+    this.player.run();
+  },
+  die: function(player, enemy) {
+    player.hitEnemy();
   }
 }
 var game = new Phaser.Game(320, 480, Phaser.AUTO, 'game_cont');

@@ -11,7 +11,7 @@
 		"sourceSize": {"w":48,"h":96}
 	},
 	 {"filename":"blue_jump.png",
-		"frame": {"x":0, "y":60, "w":42, "h":58},
+		"frame": {"x":43, "y":58, "w":42, "h":58},
 		"spriteSourceSize": {"x":3,"y":38,"w":48,"h":96},
 		"sourceSize": {"w":48,"h":96}
 	},
@@ -21,20 +21,30 @@
 		"sourceSize": {"w":48,"h":96}
 	},
 	 {"filename":"blue_walk_1.png",
-		"frame": {"x":43, "y":58, "w":42, "h":57},
+		"frame": {"x":0, "y":0, "w":42, "h":57},
 		"spriteSourceSize": {"x":3,"y":39,"w":48,"h":96},
 		"sourceSize": {"w":48,"h":96}
 	},
 	 {"filename":"blue_walk_2.png",
-		"frame": {"x":0, "y":0, "w":42, "h":59},
+		"frame": {"x":0, "y":58, "w":42, "h":59},
 		"spriteSourceSize": {"x":3,"y":37,"w":48,"h":96},
 		"sourceSize": {"w":48,"h":96}
+	},
+	 {"filename":"mouse.png",
+		"frame": {"x":43, "y":117, "w":41, "h":24},
+		"spriteSourceSize": {"x":3,"y":24,"w":48,"h":48},
+		"sourceSize": {"w":48,"h":48}
+	},
+	 {"filename":"mouse_move.png",
+		"frame": {"x":85, "y":117, "w":40, "h":24},
+		"spriteSourceSize": {"x":4,"y":24,"w":48,"h":48},
+		"sourceSize": {"w":48,"h":48}
 	}
 
 ],
 "meta": {
 	"image": "sprites.png",
-	"size": {"w": 128, "h": 119},
+	"size": {"w": 128, "h": 142},
 	"scale": "1"
 }
 }

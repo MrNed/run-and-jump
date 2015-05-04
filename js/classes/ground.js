@@ -16,7 +16,3 @@ var Ground = function(game, x, y, width, height) {
 
 Ground.prototype = Object.create(Phaser.TileSprite.prototype);
 Ground.prototype.constructor = Ground;
-
-Ground.prototype.update = function() {
-
-};

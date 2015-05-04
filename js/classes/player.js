@@ -1,4 +1,6 @@
 var Player = function(game, x, y, key, playerType, defaultFrame) {
+  this.playerType = playerType;
+
   if (typeof defaultFrame === 'undefined') {
     defaultFrame = 'walk_2';
   }
@@ -26,7 +28,18 @@ Player.prototype.onGround = function() {
 Player.prototype.jump = function() {
   if (this.onGround()) {
     this.animations.stop();
-    this.frameName = 'blue_jump.png';
+    this.frameName = this.playerType + '_jump.png';
     this.body.velocity.y = -500;
   }
 };
+
+Player.prototype.run = function() {
+  if (this.onGround()) {
+    this.play('runRight');
+  }
+}
+
+Player.prototype.hitEnemy = function() {
+  this.animations.stop();
+  this.frameName = this.playerType + '_hit.png';
+}
