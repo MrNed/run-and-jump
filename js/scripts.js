@@ -17,6 +17,12 @@ var Enemy = function(game, x, y, key, enemyType, group) {
 
 Enemy.prototype = Object.create(Phaser.Sprite.prototype);
 Enemy.prototype.constructor = Enemy;
+
+Enemy.prototype.hitPlayer = function() {
+  this.body.velocity.x = 0;
+  this.body.moves = false;
+  this.animations.stop();
+};
 var Ground = function(game, x, y, width, height) {
   Phaser.TileSprite.call(this, game, x, y, width, height, 'ground');
 
@@ -37,6 +43,7 @@ Ground.prototype = Object.create(Phaser.TileSprite.prototype);
 Ground.prototype.constructor = Ground;
 var Player = function(game, x, y, key, playerType, defaultFrame) {
   this.playerType = playerType;
+  this.died = false;
 
   if (typeof defaultFrame === 'undefined') {
     defaultFrame = 'walk_2';
@@ -60,7 +67,7 @@ Player.prototype.constructor = Player;
 
 Player.prototype.onGround = function() {
   return this.body.blocked.down || this.body.touching.down;
-}
+};
 
 Player.prototype.jump = function() {
   if (this.onGround()) {
@@ -71,15 +78,19 @@ Player.prototype.jump = function() {
 };
 
 Player.prototype.run = function() {
-  if (this.onGround()) {
+  if (this.onGround() && !this.died) {
     this.play('runRight');
   }
-}
+};
 
 Player.prototype.hitEnemy = function() {
+  this.died = true;
   this.animations.stop();
   this.frameName = this.playerType + '_hit.png';
-}
+
+  this.body.gravity.y = 0;
+  this.body.moves = false;
+};
 var Play = function() {
   this.player = null;
   this.ground = null;
@@ -123,12 +134,19 @@ Play.prototype = {
     this.game.physics.arcade.collide(this.player, this.enemies, this.die, null, this);
 
     this.player.run();
+
   },
   die: function(player, enemy) {
+    this.physics.arcade.gravity.y = 0;
+
+    this.ground.autoScroll(0, 0);
+    this.bg.autoScroll(0, 0);
+
     player.hitEnemy();
+    enemy.hitPlayer();
   }
-}
-var game = new Phaser.Game(320, 480, Phaser.AUTO, 'game_cont');
+};
+var game = new Phaser.Game(300, 450, Phaser.AUTO, 'game_cont');
 
 game.state.add('play', new Play());
 

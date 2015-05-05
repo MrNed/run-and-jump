@@ -1,5 +1,6 @@
 var Player = function(game, x, y, key, playerType, defaultFrame) {
   this.playerType = playerType;
+  this.died = false;
 
   if (typeof defaultFrame === 'undefined') {
     defaultFrame = 'walk_2';
@@ -23,7 +24,7 @@ Player.prototype.constructor = Player;
 
 Player.prototype.onGround = function() {
   return this.body.blocked.down || this.body.touching.down;
-}
+};
 
 Player.prototype.jump = function() {
   if (this.onGround()) {
@@ -34,12 +35,16 @@ Player.prototype.jump = function() {
 };
 
 Player.prototype.run = function() {
-  if (this.onGround()) {
+  if (this.onGround() && !this.died) {
     this.play('runRight');
   }
-}
+};
 
 Player.prototype.hitEnemy = function() {
+  this.died = true;
   this.animations.stop();
   this.frameName = this.playerType + '_hit.png';
-}
+
+  this.body.gravity.y = 0;
+  this.body.moves = false;
+};

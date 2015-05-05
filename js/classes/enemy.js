@@ -17,3 +17,9 @@ var Enemy = function(game, x, y, key, enemyType, group) {
 
 Enemy.prototype = Object.create(Phaser.Sprite.prototype);
 Enemy.prototype.constructor = Enemy;
+
+Enemy.prototype.hitPlayer = function() {
+  this.body.velocity.x = 0;
+  this.body.moves = false;
+  this.animations.stop();
+};
