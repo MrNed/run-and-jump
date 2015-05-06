@@ -2,6 +2,7 @@ var Play = function() {
   this.player = null;
   this.ground = null;
   this.enemies = null;
+  this.paused = false;
 };
 
 Play.prototype = {
@@ -21,12 +22,8 @@ Play.prototype = {
     this.bg.autoScroll(-50, 0);
 
     this.ground = new Ground(this.game, 0, this.game.height - 48, 480, 48);
-
     this.player = new Player(this.game, 48, this.game.height - 108, 'sprites', 'blue');
-
-    this.enemies = this.add.group();
-
-    var enemy = new Enemy(this.game, this.game.width - 48, this.game.height - 70, 'sprites', 'mouse', this.enemies);
+    this.enemies = new Enemies(this.game);
 
     this.game.input.keyboard.addKeyCapture([Phaser.Keyboard.SPACEBAR]);
 
@@ -42,10 +39,14 @@ Play.prototype = {
 
     this.player.run();
 
+    if (!this.paused) {
+      this.enemies.spawn();
+    }
   },
   die: function(player, enemy) {
-    this.physics.arcade.gravity.y = 0;
+    this.paused = true;
 
+    this.physics.arcade.gravity.y = 0;
     this.ground.autoScroll(0, 0);
     this.bg.autoScroll(0, 0);
 

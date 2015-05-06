@@ -1,18 +1,14 @@
-var Enemy = function(game, x, y, key, enemyType, group) {
-  if (typeof ground === 'undefined') {
-    ground = game.world;
-  }
-
-  Phaser.Sprite.call(this, game, x, y, key, enemyType + '.png');
+var Enemy = function(game, key, enemyType) {
+  Phaser.Sprite.call(this, game, 0, 0, key, enemyType + '.png');
 
   game.physics.arcade.enable(this);
 
-  this.body.velocity.x = -150;
+  this.checkWorldBounds = true;
+  this.outOfBoundsKill = true;
+  this.exists = false;
 
   this.animations.add('move', [enemyType + '.png', enemyType + '_move.png'], 5, true);
   this.animations.play('move');
-
-  group.add(this);
 };
 
 Enemy.prototype = Object.create(Phaser.Sprite.prototype);
@@ -22,4 +18,12 @@ Enemy.prototype.hitPlayer = function() {
   this.body.velocity.x = 0;
   this.body.moves = false;
   this.animations.stop();
+};
+
+Enemy.prototype.spawn = function (x, y, speed) {
+  if (!this.stopSpawning) {
+    this.reset(x, y);
+
+    this.body.velocity.x = speed;
+  }
 };

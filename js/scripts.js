@@ -1,18 +1,41 @@
-var Enemy = function(game, x, y, key, enemyType, group) {
-  if (typeof ground === 'undefined') {
-    ground = game.world;
+var Enemies = function (game) {
+  Phaser.Group.call(this, game, game.world, 'Enemies', false, true, Phaser.Physics.ARCADE);
+
+  this.nextSpawn = 0;
+  this.enemySpeed = -150;
+  this.spawnRate = 2500;
+
+  var i = 0;
+  for (i; i < 4; i++) {
+    this.add(new Enemy(game, 'sprites', 'mouse'), true);
   }
 
-  Phaser.Sprite.call(this, game, x, y, key, enemyType + '.png');
+  return this;
+};
+
+Enemies.prototype = Object.create(Phaser.Group.prototype);
+Enemies.prototype.constructor = Enemies;
+
+Enemies.prototype.spawn = function () {
+  if (this.game.time.time < this.nextSpawn) {
+    return;
+  }
+
+  this.getFirstExists(false).spawn(this.game.width, this.game.height - 70, this.enemySpeed);
+
+  this.nextSpawn = this.game.time.time + this.spawnRate;
+};
+var Enemy = function(game, key, enemyType) {
+  Phaser.Sprite.call(this, game, 0, 0, key, enemyType + '.png');
 
   game.physics.arcade.enable(this);
 
-  this.body.velocity.x = -150;
+  this.checkWorldBounds = true;
+  this.outOfBoundsKill = true;
+  this.exists = false;
 
   this.animations.add('move', [enemyType + '.png', enemyType + '_move.png'], 5, true);
   this.animations.play('move');
-
-  group.add(this);
 };
 
 Enemy.prototype = Object.create(Phaser.Sprite.prototype);
@@ -22,6 +45,14 @@ Enemy.prototype.hitPlayer = function() {
   this.body.velocity.x = 0;
   this.body.moves = false;
   this.animations.stop();
+};
+
+Enemy.prototype.spawn = function (x, y, speed) {
+  if (!this.stopSpawning) {
+    this.reset(x, y);
+
+    this.body.velocity.x = speed;
+  }
 };
 var Ground = function(game, x, y, width, height) {
   Phaser.TileSprite.call(this, game, x, y, width, height, 'ground');
@@ -95,6 +126,7 @@ var Play = function() {
   this.player = null;
   this.ground = null;
   this.enemies = null;
+  this.paused = false;
 };
 
 Play.prototype = {
@@ -114,12 +146,8 @@ Play.prototype = {
     this.bg.autoScroll(-50, 0);
 
     this.ground = new Ground(this.game, 0, this.game.height - 48, 480, 48);
-
     this.player = new Player(this.game, 48, this.game.height - 108, 'sprites', 'blue');
-
-    this.enemies = this.add.group();
-
-    var enemy = new Enemy(this.game, this.game.width - 48, this.game.height - 70, 'sprites', 'mouse', this.enemies);
+    this.enemies = new Enemies(this.game);
 
     this.game.input.keyboard.addKeyCapture([Phaser.Keyboard.SPACEBAR]);
 
@@ -135,10 +163,14 @@ Play.prototype = {
 
     this.player.run();
 
+    if (!this.paused) {
+      this.enemies.spawn();
+    }
   },
   die: function(player, enemy) {
-    this.physics.arcade.gravity.y = 0;
+    this.paused = true;
 
+    this.physics.arcade.gravity.y = 0;
     this.ground.autoScroll(0, 0);
     this.bg.autoScroll(0, 0);
 
