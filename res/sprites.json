@@ -1,5 +1,15 @@
 {
 "frames": [
+	 {"filename":"bee.png",
+		"frame": {"x":85, "y":117, "w":40, "h":34},
+		"spriteSourceSize": {"x":4,"y":8,"w":48,"h":48},
+		"sourceSize": {"w":48,"h":48}
+	},
+	 {"filename":"bee_move.png",
+		"frame": {"x":0, "y":118, "w":42, "h":29},
+		"spriteSourceSize": {"x":3,"y":10,"w":48,"h":48},
+		"sourceSize": {"w":48,"h":48}
+	},
 	 {"filename":"blue_front.png",
 		"frame": {"x":86, "y":0, "w":41, "h":57},
 		"spriteSourceSize": {"x":3,"y":39,"w":48,"h":96},
@@ -21,12 +31,12 @@
 		"sourceSize": {"w":48,"h":96}
 	},
 	 {"filename":"blue_walk_1.png",
-		"frame": {"x":0, "y":0, "w":42, "h":57},
+		"frame": {"x":0, "y":60, "w":42, "h":57},
 		"spriteSourceSize": {"x":3,"y":39,"w":48,"h":96},
 		"sourceSize": {"w":48,"h":96}
 	},
 	 {"filename":"blue_walk_2.png",
-		"frame": {"x":0, "y":58, "w":42, "h":59},
+		"frame": {"x":0, "y":0, "w":42, "h":59},
 		"spriteSourceSize": {"x":3,"y":37,"w":48,"h":96},
 		"sourceSize": {"w":48,"h":96}
 	},
@@ -36,7 +46,7 @@
 		"sourceSize": {"w":48,"h":48}
 	},
 	 {"filename":"mouse_move.png",
-		"frame": {"x":85, "y":117, "w":40, "h":24},
+		"frame": {"x":43, "y":142, "w":40, "h":24},
 		"spriteSourceSize": {"x":4,"y":24,"w":48,"h":48},
 		"sourceSize": {"w":48,"h":48}
 	}
@@ -44,7 +54,7 @@
 ],
 "meta": {
 	"image": "sprites.png",
-	"size": {"w": 128, "h": 142},
+	"size": {"w": 128, "h": 167},
 	"scale": "1"
 }
 }

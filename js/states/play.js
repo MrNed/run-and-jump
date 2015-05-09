@@ -3,6 +3,9 @@ var Play = function() {
   this.ground = null;
   this.enemies = null;
   this.paused = false;
+
+  this.score = 0;
+  this.scoreText = '';
 };
 
 Play.prototype = {
@@ -31,10 +34,18 @@ Play.prototype = {
     jumpKey.onDown.add(this.player.jump, this.player);
 
     this.input.onDown.add(this.player.jump, this.player);
+
+    var textStyle = {
+      font: '24px Share Tech Mono',
+      fill: '#FBFBFB',
+      stroke: '#424242',
+      strokeThickness: 3
+    };
+
+    this.scoreText = this.game.add.text(5, 5, '0', textStyle);
   },
   update: function() {
     this.game.physics.arcade.collide(this.player, this.ground);
-    this.game.physics.arcade.collide(this.enemies, this.ground);
     this.game.physics.arcade.collide(this.player, this.enemies, this.die, null, this);
 
     this.player.run();
@@ -42,6 +53,11 @@ Play.prototype = {
     if (!this.paused) {
       this.enemies.spawn();
     }
+
+    var self = this;
+    this.enemies.forEach(function(enemy) {
+      self.checkScore(enemy);
+    });
   },
   die: function(player, enemy) {
     this.paused = true;
@@ -51,6 +67,18 @@ Play.prototype = {
     this.bg.autoScroll(0, 0);
 
     player.hitEnemy();
-    enemy.hitPlayer();
+
+    var self = this;
+    this.enemies.forEach(function(enemy) {
+      enemy.stop();
+    });
+  },
+  checkScore: function(enemy) {
+    if (enemy.exists && !enemy.hasScored && enemy.world.x <= this.player.world.x) {
+      enemy.hasScored = true;
+
+      this.score++;
+      this.scoreText.text = this.score.toString();
+    }
   }
 };

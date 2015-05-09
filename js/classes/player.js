@@ -1,6 +1,8 @@
 var Player = function(game, x, y, key, playerType, defaultFrame) {
   this.playerType = playerType;
   this.died = false;
+  this.doubleJump = true;
+  this.jumpHeight = 500;
 
   if (typeof defaultFrame === 'undefined') {
     defaultFrame = 'walk_2';
@@ -10,8 +12,8 @@ var Player = function(game, x, y, key, playerType, defaultFrame) {
 
   game.physics.arcade.enable(this);
 
-  this.body.bounce.y = 0.2;
-  this.body.gravity.y = 300;
+  this.body.bounce.y = 0.1;
+  this.body.gravity.y = 500;
   this.body.collideWorldBounds = true;
 
   this.animations.add('runRight', [playerType + '_walk_1.png', playerType + '_walk_2.png'], 10, true);
@@ -27,15 +29,22 @@ Player.prototype.onGround = function() {
 };
 
 Player.prototype.jump = function() {
-  if (this.onGround()) {
+  if (this.onGround() || (!this.onGround() && this.doubleJump)) {
     this.animations.stop();
     this.frameName = this.playerType + '_jump.png';
-    this.body.velocity.y = -500;
+
+    if (!this.onGround()) {
+      this.doubleJump = false;
+      this.body.velocity.y = -(this.jumpHeight * 0.75);
+    } else {
+      this.body.velocity.y = -this.jumpHeight;
+    }
   }
 };
 
 Player.prototype.run = function() {
   if (this.onGround() && !this.died) {
+    this.doubleJump = true;
     this.play('runRight');
   }
 };

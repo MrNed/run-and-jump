@@ -1,13 +1,22 @@
 var Enemies = function (game) {
+  this.enemiesCounter = 0;
+  this.possibleEnemies = ['mouse', 'bee'];
+
   Phaser.Group.call(this, game, game.world, 'Enemies', false, true, Phaser.Physics.ARCADE);
 
   this.nextSpawn = 0;
-  this.enemySpeed = -150;
-  this.spawnRate = 2500;
+  this.minSpawnRate = 1000;
+  this.maxSpawnRate = 2000;
+  this.minSpeed = 200;
+  this.maxSpeed = 400;
 
-  var i = 0;
-  for (i; i < 4; i++) {
-    this.add(new Enemy(game, 'sprites', 'mouse'), true);
+  var i = 0,
+      length = this.possibleEnemies.length;
+
+  for (i; i < length; i++) {
+    for (j = 0; j < 5; j++) {
+      this.add(new Enemy(game, 'sprites', this.possibleEnemies[i]), true);
+    }
   }
 
   return this;
@@ -21,7 +30,15 @@ Enemies.prototype.spawn = function () {
     return;
   }
 
-  this.getFirstExists(false).spawn(this.game.width, this.game.height - 70, this.enemySpeed);
+  // RANDOMIZE ENEMIES - PROBABLY CAN BE DONE BETTER
+  this.children.sort(function() { return 0.5 - Math.random() });
 
-  this.nextSpawn = this.game.time.time + this.spawnRate;
+  var speed = -(game.rnd.integerInRange(this.minSpeed, this.maxSpeed) + (this.enemiesCounter * 5));
+  var spawn = game.rnd.integerInRange(this.minSpawnRate, this.maxSpawnRate) - (this.enemiesCounter * 10);
+
+  this.getFirstExists(false).spawn(this.game.width, this.game.height - 72, speed);
+
+  this.nextSpawn = this.game.time.time + spawn;
+
+  this.enemiesCounter++;
 };
