@@ -1,3 +1,27 @@
+var Background = function(game) {
+  game.stage.backgroundColor = '#d0f4f7';
+
+  this.cloudsSecond = game.add.tileSprite(0, game.height - 320, 967, 177, 'bg_clouds_2');
+  this.cloudsSecond.autoScroll(-20, 0);
+
+  this.cloudsFirst = game.add.tileSprite(-200, game.height - 250, 967, 177, 'bg_clouds_1');
+  this.cloudsFirst.autoScroll(-40, 0);
+
+  this.front = game.add.tileSprite(0, game.height - 264, 967, 264, 'bg_front');
+
+  game.world.add(this.front);
+};
+
+Background.prototype = Object.create(Phaser.Group.prototype);
+Background.prototype.constructor = Background;
+
+Background.prototype.startFrontScroll = function() {
+  this.front.autoScroll(-50, 0);
+};
+
+Background.prototype.stopFrontScroll = function() {
+  this.front.autoScroll(0, 0);
+};
 var Enemies = function (game) {
   this.enemiesCounter = 0;
   this.possibleEnemies = ['mouse', 'bee'];
@@ -14,7 +38,7 @@ var Enemies = function (game) {
       length = this.possibleEnemies.length;
 
   for (i; i < length; i++) {
-    for (j = 0; j < 5; j++) {
+    for (j = 0; j < 3; j++) {
       this.add(new Enemy(game, 'sprites', this.possibleEnemies[i]), true);
     }
   }
@@ -80,8 +104,6 @@ Enemy.prototype.spawn = function (x, y, speed) {
 var Ground = function(game, x, y, width, height) {
   Phaser.TileSprite.call(this, game, x, y, width, height, 'ground');
 
-  this.autoScroll(-150, 0);
-
   // FIX FOR BROKEN COLLISION IN PHASER 2.3.0
   this.physicsType = Phaser.SPRITE;
 
@@ -95,6 +117,14 @@ var Ground = function(game, x, y, width, height) {
 
 Ground.prototype = Object.create(Phaser.TileSprite.prototype);
 Ground.prototype.constructor = Ground;
+
+Ground.prototype.startScroll = function() {
+  this.autoScroll(-150, 0);
+};
+
+Ground.prototype.stopScroll = function() {
+  this.autoScroll(0, 0);
+};
 var Player = function(game, x, y, key, playerType, defaultFrame) {
   this.playerType = playerType;
   this.died = false;
@@ -109,7 +139,7 @@ var Player = function(game, x, y, key, playerType, defaultFrame) {
 
   game.physics.arcade.enable(this);
 
-  this.body.bounce.y = 0.1;
+  this.body.bounce.y = 0;
   this.body.gravity.y = 500;
   this.body.collideWorldBounds = true;
 
@@ -154,6 +184,35 @@ Player.prototype.hitEnemy = function() {
   this.body.gravity.y = 0;
   this.body.moves = false;
 };
+var Boot = function() {};
+
+Boot.prototype = {
+  preload: function() {
+    this.game.load.image('preloader', 'res/preloader.gif');
+  },
+  create: function() {
+    this.game.stage.backgroundColor = '#d0f4f7';
+    this.game.input.maxPointers = 1;
+    this.game.state.start('preload');
+  }
+
+};
+var Menu = function() {};
+
+Menu.prototype = {
+  create: function() {
+    this.bg = new Background(this.game);
+    this.ground = new Ground(this.game, 0, this.game.height - 48, 480, 48);
+
+    var startButton = this.add.button(game.width * 0.5, game.height * 0.5, 'playButton', this.startClick, this);
+    startButton.anchor.set(0.5);
+    startButton.input.useHandCursor = true;
+  },
+  startClick: function() {
+    this.game.state.start('play');
+  }
+
+};
 var Play = function() {
   this.player = null;
   this.ground = null;
@@ -170,17 +229,13 @@ Play.prototype = {
     this.physics.startSystem(Phaser.Physics.ARCADE);
     this.physics.arcade.gravity.y = 800;
   },
-  preload: function() {
-    this.game.load.atlas('sprites', 'res/sprites.png', 'res/sprites.json');
-
-    this.game.load.image('ground', 'res/ground_grass.png');
-    this.game.load.image('background', 'res/bg_grass.png');
-  },
   create: function() {
-    this.bg = this.game.add.tileSprite(0, 0, 480, 967, 'background');
-    this.bg.autoScroll(-50, 0);
+    this.bg = new Background(this.game);
+    this.bg.startFrontScroll();
 
     this.ground = new Ground(this.game, 0, this.game.height - 48, 480, 48);
+    this.ground.startScroll();
+
     this.player = new Player(this.game, 48, this.game.height - 108, 'sprites', 'blue');
     this.enemies = new Enemies(this.game);
 
@@ -219,8 +274,8 @@ Play.prototype = {
     this.paused = true;
 
     this.physics.arcade.gravity.y = 0;
-    this.ground.autoScroll(0, 0);
-    this.bg.autoScroll(0, 0);
+    this.ground.stopScroll();
+    this.bg.stopFrontScroll();
 
     player.hitEnemy();
 
@@ -238,8 +293,44 @@ Play.prototype = {
     }
   }
 };
-var game = new Phaser.Game(300, 450, Phaser.AUTO, 'game_cont');
+var Preload = function() {
+  this.asset = null;
+  this.ready = false;
+};
 
+Preload.prototype = {
+  preload: function() {
+    this.asset = this.add.sprite(game.width * 0.5, game.height * 0.5, 'preloader');
+    this.asset.anchor.set(0.5, 0.5);
+
+    this.game.load.onLoadComplete.addOnce(this.onLoadComplete, this);
+    // this.load.setPreloadSprite(this.asset, 0);
+
+    this.game.load.atlas('sprites', 'res/sprites.png', 'res/sprites.json');
+    this.game.load.image('ground', 'res/ground_grass.png');
+    this.game.load.image('bg_front', 'res/bg_front_grass.png');
+    this.game.load.image('bg_clouds_1', 'res/bg_clouds1_grass.png');
+    this.game.load.image('bg_clouds_2', 'res/bg_clouds2_grass.png');
+
+  },
+  create: function() {
+    this.asset.cropEnabled = false;
+  },
+  update: function() {
+    if (!!this.ready) {
+      this.game.state.start('menu');
+    }
+  },
+  onLoadComplete: function() {
+    this.ready = true;
+  }
+
+};
+var game = new Phaser.Game(300, 420, Phaser.AUTO, 'game_cont');
+
+game.state.add('boot', new Boot());
+game.state.add('preload', new Preload());
+game.state.add('menu', new Menu());
 game.state.add('play', new Play());
 
-game.state.start('play');
+game.state.start('boot');

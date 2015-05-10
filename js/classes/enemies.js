@@ -14,7 +14,7 @@ var Enemies = function (game) {
       length = this.possibleEnemies.length;
 
   for (i; i < length; i++) {
-    for (j = 0; j < 5; j++) {
+    for (j = 0; j < 3; j++) {
       this.add(new Enemy(game, 'sprites', this.possibleEnemies[i]), true);
     }
   }

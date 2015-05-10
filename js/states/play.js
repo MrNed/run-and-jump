@@ -14,17 +14,13 @@ Play.prototype = {
     this.physics.startSystem(Phaser.Physics.ARCADE);
     this.physics.arcade.gravity.y = 800;
   },
-  preload: function() {
-    this.game.load.atlas('sprites', 'res/sprites.png', 'res/sprites.json');
-
-    this.game.load.image('ground', 'res/ground_grass.png');
-    this.game.load.image('background', 'res/bg_grass.png');
-  },
   create: function() {
-    this.bg = this.game.add.tileSprite(0, 0, 480, 967, 'background');
-    this.bg.autoScroll(-50, 0);
+    this.bg = new Background(this.game);
+    this.bg.startFrontScroll();
 
     this.ground = new Ground(this.game, 0, this.game.height - 48, 480, 48);
+    this.ground.startScroll();
+
     this.player = new Player(this.game, 48, this.game.height - 108, 'sprites', 'blue');
     this.enemies = new Enemies(this.game);
 
@@ -63,8 +59,8 @@ Play.prototype = {
     this.paused = true;
 
     this.physics.arcade.gravity.y = 0;
-    this.ground.autoScroll(0, 0);
-    this.bg.autoScroll(0, 0);
+    this.ground.stopScroll();
+    this.bg.stopFrontScroll();
 
     player.hitEnemy();
 

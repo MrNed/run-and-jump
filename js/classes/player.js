@@ -12,7 +12,7 @@ var Player = function(game, x, y, key, playerType, defaultFrame) {
 
   game.physics.arcade.enable(this);
 
-  this.body.bounce.y = 0.1;
+  this.body.bounce.y = 0;
   this.body.gravity.y = 500;
   this.body.collideWorldBounds = true;
 
