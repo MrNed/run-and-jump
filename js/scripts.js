@@ -8,8 +8,6 @@ var Background = function(game) {
   this.cloudsFirst.autoScroll(-40, 0);
 
   this.front = game.add.tileSprite(0, game.height - 264, 967, 264, 'bg_front');
-
-  game.world.add(this.front);
 };
 
 Background.prototype = Object.create(Phaser.Group.prototype);
@@ -125,9 +123,32 @@ Ground.prototype.startScroll = function() {
 Ground.prototype.stopScroll = function() {
   this.autoScroll(0, 0);
 };
+var Board = function(game) {
+  this.board = game.add.group();
+
+  var board = game.add.image(game.width * 0.5 - 110, 100, 'board');
+  this.board.add(board);
+
+  var repeatButton = game.add.button(game.width - 75, 190, 'repeat_btn', this.repeatClick, this);
+  repeatButton.anchor.set(0.5);
+  repeatButton.input.useHandCursor = true;
+
+  this.board.add(repeatButton);
+
+  this.board.alpha = 0;
+  this.board.y = game.height;
+};
+
+Board.prototype.repeatClick = function() {
+  game.state.start('play');
+};
+
+Board.prototype.show = function() {
+  game.add.tween(this.board).to({alpha:1, y: 0}, 500, Phaser.Easing.Exponential.Out, true, 0);
+};
 var Player = function(game, x, y, key, playerType, defaultFrame) {
   this.playerType = playerType;
-  this.died = false;
+  this.alive = true;
   this.doubleJump = true;
   this.jumpHeight = 500;
 
@@ -156,7 +177,7 @@ Player.prototype.onGround = function() {
 };
 
 Player.prototype.jump = function() {
-  if (this.onGround() || (!this.onGround() && this.doubleJump)) {
+  if (this.alive && (this.onGround() || (!this.onGround() && this.doubleJump))) {
     this.animations.stop();
     this.frameName = this.playerType + '_jump.png';
 
@@ -170,14 +191,14 @@ Player.prototype.jump = function() {
 };
 
 Player.prototype.run = function() {
-  if (this.onGround() && !this.died) {
+  if (this.onGround() && this.alive) {
     this.doubleJump = true;
     this.play('runRight');
   }
 };
 
 Player.prototype.hitEnemy = function() {
-  this.died = true;
+  this.alive = false;
   this.animations.stop();
   this.frameName = this.playerType + '_hit.png';
 
@@ -204,7 +225,7 @@ Menu.prototype = {
     this.bg = new Background(this.game);
     this.ground = new Ground(this.game, 0, this.game.height - 48, 480, 48);
 
-    var startButton = this.add.button(game.width * 0.5, game.height * 0.5, 'playButton', this.startClick, this);
+    var startButton = this.add.button(game.width * 0.5, game.height * 0.5, 'play_btn', this.startClick, this);
     startButton.anchor.set(0.5);
     startButton.input.useHandCursor = true;
   },
@@ -217,10 +238,14 @@ var Play = function() {
   this.player = null;
   this.ground = null;
   this.enemies = null;
-  this.paused = false;
+  this.board = null;
+  this.spawn = false;
 
   this.score = 0;
   this.scoreText = '';
+
+  this.timer = null;
+  this.spawnDelay = 1000;
 };
 
 Play.prototype = {
@@ -228,6 +253,8 @@ Play.prototype = {
     this.game.renderer.renderSession.roundPixels = true;
     this.physics.startSystem(Phaser.Physics.ARCADE);
     this.physics.arcade.gravity.y = 800;
+
+    this.game.time.advancedTiming = true;
   },
   create: function() {
     this.bg = new Background(this.game);
@@ -253,15 +280,25 @@ Play.prototype = {
       strokeThickness: 3
     };
 
-    this.scoreText = this.game.add.text(5, 5, '0', textStyle);
+    this.scoreText = this.game.add.text(this.game.width / 2, 5, '0', textStyle);
+
+    this.timer = new Phaser.Timer(this.game);
+    this.timer.add(this.spawnDelay, function() {
+      this.spawn = true;
+    }, this);
+    this.timer.start();
+
+    this.board = new Board(this.game);
   },
   update: function() {
+    this.timer.update(this.game.time.time);
+
     this.game.physics.arcade.collide(this.player, this.ground);
     this.game.physics.arcade.collide(this.player, this.enemies, this.die, null, this);
 
     this.player.run();
 
-    if (!this.paused) {
+    if (this.spawn) {
       this.enemies.spawn();
     }
 
@@ -270,8 +307,13 @@ Play.prototype = {
       self.checkScore(enemy);
     });
   },
+  shutdown: function() {
+    this.score = 0;
+    this.spawn = false;
+    this.timer = null;
+  },
   die: function(player, enemy) {
-    this.paused = true;
+    this.spawn = false;
 
     this.physics.arcade.gravity.y = 0;
     this.ground.stopScroll();
@@ -283,6 +325,8 @@ Play.prototype = {
     this.enemies.forEach(function(enemy) {
       enemy.stop();
     });
+
+    this.board.show();
   },
   checkScore: function(enemy) {
     if (enemy.exists && !enemy.hasScored && enemy.world.x <= this.player.world.x) {
@@ -291,6 +335,9 @@ Play.prototype = {
       this.score++;
       this.scoreText.text = this.score.toString();
     }
+  },
+  render: function() {
+    this.game.debug.text(this.game.time.fps || '--', 2, 14, "#00ff00");
   }
 };
 var Preload = function() {
@@ -304,14 +351,15 @@ Preload.prototype = {
     this.asset.anchor.set(0.5, 0.5);
 
     this.game.load.onLoadComplete.addOnce(this.onLoadComplete, this);
-    // this.load.setPreloadSprite(this.asset, 0);
 
     this.game.load.atlas('sprites', 'res/sprites.png', 'res/sprites.json');
     this.game.load.image('ground', 'res/ground_grass.png');
     this.game.load.image('bg_front', 'res/bg_front_grass.png');
     this.game.load.image('bg_clouds_1', 'res/bg_clouds1_grass.png');
     this.game.load.image('bg_clouds_2', 'res/bg_clouds2_grass.png');
-
+    this.game.load.image('board', 'res/board.png');
+    this.game.load.image('play_btn', 'res/play.png');
+    this.game.load.image('repeat_btn', 'res/repeat.png');
   },
   create: function() {
     this.asset.cropEnabled = false;
@@ -326,7 +374,7 @@ Preload.prototype = {
   }
 
 };
-var game = new Phaser.Game(300, 420, Phaser.AUTO, 'game_cont');
+var game = new Phaser.Game(300, 420, Phaser.Canvas, 'game_cont');
 
 game.state.add('boot', new Boot());
 game.state.add('preload', new Preload());

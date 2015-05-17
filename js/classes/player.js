@@ -1,6 +1,6 @@
 var Player = function(game, x, y, key, playerType, defaultFrame) {
   this.playerType = playerType;
-  this.died = false;
+  this.alive = true;
   this.doubleJump = true;
   this.jumpHeight = 500;
 
@@ -29,7 +29,7 @@ Player.prototype.onGround = function() {
 };
 
 Player.prototype.jump = function() {
-  if (this.onGround() || (!this.onGround() && this.doubleJump)) {
+  if (this.alive && (this.onGround() || (!this.onGround() && this.doubleJump))) {
     this.animations.stop();
     this.frameName = this.playerType + '_jump.png';
 
@@ -43,14 +43,14 @@ Player.prototype.jump = function() {
 };
 
 Player.prototype.run = function() {
-  if (this.onGround() && !this.died) {
+  if (this.onGround() && this.alive) {
     this.doubleJump = true;
     this.play('runRight');
   }
 };
 
 Player.prototype.hitEnemy = function() {
-  this.died = true;
+  this.alive = false;
   this.animations.stop();
   this.frameName = this.playerType + '_hit.png';
 

@@ -8,8 +8,6 @@ var Background = function(game) {
   this.cloudsFirst.autoScroll(-40, 0);
 
   this.front = game.add.tileSprite(0, game.height - 264, 967, 264, 'bg_front');
-
-  game.world.add(this.front);
 };
 
 Background.prototype = Object.create(Phaser.Group.prototype);

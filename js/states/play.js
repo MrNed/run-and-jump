@@ -2,10 +2,14 @@ var Play = function() {
   this.player = null;
   this.ground = null;
   this.enemies = null;
-  this.paused = false;
+  this.board = null;
+  this.spawn = false;
 
   this.score = 0;
   this.scoreText = '';
+
+  this.timer = null;
+  this.spawnDelay = 1000;
 };
 
 Play.prototype = {
@@ -13,6 +17,8 @@ Play.prototype = {
     this.game.renderer.renderSession.roundPixels = true;
     this.physics.startSystem(Phaser.Physics.ARCADE);
     this.physics.arcade.gravity.y = 800;
+
+    this.game.time.advancedTiming = true;
   },
   create: function() {
     this.bg = new Background(this.game);
@@ -38,15 +44,25 @@ Play.prototype = {
       strokeThickness: 3
     };
 
-    this.scoreText = this.game.add.text(5, 5, '0', textStyle);
+    this.scoreText = this.game.add.text(this.game.width / 2, 5, '0', textStyle);
+
+    this.timer = new Phaser.Timer(this.game);
+    this.timer.add(this.spawnDelay, function() {
+      this.spawn = true;
+    }, this);
+    this.timer.start();
+
+    this.board = new Board(this.game);
   },
   update: function() {
+    this.timer.update(this.game.time.time);
+
     this.game.physics.arcade.collide(this.player, this.ground);
     this.game.physics.arcade.collide(this.player, this.enemies, this.die, null, this);
 
     this.player.run();
 
-    if (!this.paused) {
+    if (this.spawn) {
       this.enemies.spawn();
     }
 
@@ -55,8 +71,13 @@ Play.prototype = {
       self.checkScore(enemy);
     });
   },
+  shutdown: function() {
+    this.score = 0;
+    this.spawn = false;
+    this.timer = null;
+  },
   die: function(player, enemy) {
-    this.paused = true;
+    this.spawn = false;
 
     this.physics.arcade.gravity.y = 0;
     this.ground.stopScroll();
@@ -68,6 +89,8 @@ Play.prototype = {
     this.enemies.forEach(function(enemy) {
       enemy.stop();
     });
+
+    this.board.show();
   },
   checkScore: function(enemy) {
     if (enemy.exists && !enemy.hasScored && enemy.world.x <= this.player.world.x) {
@@ -76,5 +99,8 @@ Play.prototype = {
       this.score++;
       this.scoreText.text = this.score.toString();
     }
+  },
+  render: function() {
+    this.game.debug.text(this.game.time.fps || '--', 2, 14, "#00ff00");
   }
 };
