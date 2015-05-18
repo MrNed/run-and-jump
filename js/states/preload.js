@@ -18,6 +18,10 @@ Preload.prototype = {
     this.game.load.image('board', 'res/board.png');
     this.game.load.image('play_btn', 'res/play.png');
     this.game.load.image('repeat_btn', 'res/repeat.png');
+    this.game.load.image('menu_btn', 'res/menu.png');
+    this.game.load.image('score', 'res/score.png');
+    this.game.load.image('best', 'res/best.png');
+    this.load.bitmapFont('font', 'res/font.png', 'res/font.fnt');
   },
   create: function() {
     this.asset.cropEnabled = false;

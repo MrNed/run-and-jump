@@ -7,6 +7,7 @@ var Play = function() {
 
   this.score = 0;
   this.scoreText = '';
+  this.bestScore = 0;
 
   this.timer = null;
   this.spawnDelay = 1000;
@@ -37,14 +38,7 @@ Play.prototype = {
 
     this.input.onDown.add(this.player.jump, this.player);
 
-    var textStyle = {
-      font: '24px Share Tech Mono',
-      fill: '#FBFBFB',
-      stroke: '#424242',
-      strokeThickness: 3
-    };
-
-    this.scoreText = this.game.add.text(this.game.width / 2, 5, '0', textStyle);
+    this.scoreText = this.game.add.bitmapText(this.game.width * 0.5, 5, 'font', '0', 22);
 
     this.timer = new Phaser.Timer(this.game);
     this.timer.add(this.spawnDelay, function() {
@@ -90,7 +84,11 @@ Play.prototype = {
       enemy.stop();
     });
 
-    this.board.show();
+    if (this.score > this.bestScore) {
+      this.bestScore = this.score;
+    }
+
+    this.board.show(this.score, this.bestScore);
   },
   checkScore: function(enemy) {
     if (enemy.exists && !enemy.hasScored && enemy.world.x <= this.player.world.x) {
@@ -101,6 +99,6 @@ Play.prototype = {
     }
   },
   render: function() {
-    this.game.debug.text(this.game.time.fps || '--', 2, 14, "#00ff00");
+    this.game.debug.text(this.game.time.fps || '--', 2, 16, "#00ff00");
   }
 };

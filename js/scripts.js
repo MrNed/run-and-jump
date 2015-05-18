@@ -124,10 +124,23 @@ Ground.prototype.stopScroll = function() {
   this.autoScroll(0, 0);
 };
 var Board = function(game) {
+  this.score = 0;
+  this.scoreTxt = '';
+  this.scoreField = 'Score:';
+  this.best = 0;
+  this.bestTxt = '';
+  this.bestField = 'Best:';
+
   this.board = game.add.group();
 
   var board = game.add.image(game.width * 0.5 - 110, 100, 'board');
   this.board.add(board);
+
+  var menuButton = game.add.button(game.width - 75, 130, 'menu_btn', this.menuClick, this);
+  menuButton.anchor.set(0.5);
+  menuButton.input.useHandCursor = true;
+
+  this.board.add(menuButton);
 
   var repeatButton = game.add.button(game.width - 75, 190, 'repeat_btn', this.repeatClick, this);
   repeatButton.anchor.set(0.5);
@@ -135,15 +148,39 @@ var Board = function(game) {
 
   this.board.add(repeatButton);
 
+  var textStyle = {
+    font: '24px Share Tech Mono',
+    fill: '#FBFBFB',
+    stroke: '#424242',
+    strokeThickness: 3
+  };
+
+  this.scoreText = game.add.bitmapText(game.width / 2, 150, 'font', '0', 22);
+  this.scoreField = game.add.image(game.width * 0.5 - 100, 150, 'score');
+  this.bestText = game.add.bitmapText(game.width / 2, 180, 'font', '0', 22);
+  this.bestField = game.add.image(game.width * 0.5 - 100, 180, 'best');
+
+  this.board.add(this.scoreText);
+  this.board.add(this.scoreField);
+  this.board.add(this.bestText);
+  this.board.add(this.bestField);
+
   this.board.alpha = 0;
   this.board.y = game.height;
+};
+
+Board.prototype.menuClick = function() {
+  game.state.start('menu');
 };
 
 Board.prototype.repeatClick = function() {
   game.state.start('play');
 };
 
-Board.prototype.show = function() {
+Board.prototype.show = function(score, best) {
+  this.scoreText.text = score.toString();
+  this.bestText.text = best.toString();
+
   game.add.tween(this.board).to({alpha:1, y: 0}, 500, Phaser.Easing.Exponential.Out, true, 0);
 };
 var Player = function(game, x, y, key, playerType, defaultFrame) {
@@ -243,6 +280,7 @@ var Play = function() {
 
   this.score = 0;
   this.scoreText = '';
+  this.bestScore = 0;
 
   this.timer = null;
   this.spawnDelay = 1000;
@@ -273,14 +311,7 @@ Play.prototype = {
 
     this.input.onDown.add(this.player.jump, this.player);
 
-    var textStyle = {
-      font: '24px Share Tech Mono',
-      fill: '#FBFBFB',
-      stroke: '#424242',
-      strokeThickness: 3
-    };
-
-    this.scoreText = this.game.add.text(this.game.width / 2, 5, '0', textStyle);
+    this.scoreText = this.game.add.bitmapText(this.game.width * 0.5, 5, 'font', '0', 22);
 
     this.timer = new Phaser.Timer(this.game);
     this.timer.add(this.spawnDelay, function() {
@@ -326,7 +357,11 @@ Play.prototype = {
       enemy.stop();
     });
 
-    this.board.show();
+    if (this.score > this.bestScore) {
+      this.bestScore = this.score;
+    }
+
+    this.board.show(this.score, this.bestScore);
   },
   checkScore: function(enemy) {
     if (enemy.exists && !enemy.hasScored && enemy.world.x <= this.player.world.x) {
@@ -337,7 +372,7 @@ Play.prototype = {
     }
   },
   render: function() {
-    this.game.debug.text(this.game.time.fps || '--', 2, 14, "#00ff00");
+    this.game.debug.text(this.game.time.fps || '--', 2, 16, "#00ff00");
   }
 };
 var Preload = function() {
@@ -360,6 +395,10 @@ Preload.prototype = {
     this.game.load.image('board', 'res/board.png');
     this.game.load.image('play_btn', 'res/play.png');
     this.game.load.image('repeat_btn', 'res/repeat.png');
+    this.game.load.image('menu_btn', 'res/menu.png');
+    this.game.load.image('score', 'res/score.png');
+    this.game.load.image('best', 'res/best.png');
+    this.load.bitmapFont('font', 'res/font.png', 'res/font.fnt');
   },
   create: function() {
     this.asset.cropEnabled = false;
