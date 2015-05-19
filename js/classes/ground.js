@@ -1,6 +1,10 @@
-var Ground = function(game, x, y, width, height) {
+var Ground = function(game, x, y, width, height, type) {
 
-  Phaser.TileSprite.call(this, game, x, y, width, height, 'ground');
+  if (typeof type === 'undefined') {
+    type = 'grass';
+  }
+
+  Phaser.TileSprite.call(this, game, x, y, width, height, 'ground_' + type);
 
   // FIX FOR BROKEN COLLISION IN PHASER 2.3.0
   this.physicsType = Phaser.SPRITE;

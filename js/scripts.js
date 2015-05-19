@@ -1,4 +1,9 @@
-var Background = function(game) {
+var Background = function(game, type) {
+
+  if (typeof type === 'undefined') {
+    type = 'grass';
+  }
+
 
   game.stage.backgroundColor = '#d0f4f7';
 
@@ -8,7 +13,7 @@ var Background = function(game) {
   this.cloudsFirst = game.add.tileSprite(-200, game.height - 250, 967, 177, 'bg_clouds_1');
   this.cloudsFirst.autoScroll(-40, 0);
 
-  this.front = game.add.tileSprite(0, game.height - 264, 967, 264, 'bg_front');
+  this.front = game.add.tileSprite(0, game.height - 264, 967, 264, 'bg_front_' + type);
 
 };
 
@@ -115,9 +120,13 @@ Enemy.prototype.spawn = function (x, y, speed) {
   this.body.velocity.x = speed;
 
 };
-var Ground = function(game, x, y, width, height) {
+var Ground = function(game, x, y, width, height, type) {
 
-  Phaser.TileSprite.call(this, game, x, y, width, height, 'ground');
+  if (typeof type === 'undefined') {
+    type = 'grass';
+  }
+
+  Phaser.TileSprite.call(this, game, x, y, width, height, 'ground_' + type);
 
   // FIX FOR BROKEN COLLISION IN PHASER 2.3.0
   this.physicsType = Phaser.SPRITE;
@@ -444,8 +453,8 @@ BasicGame.Menu.prototype = {
 
   create: function() {
 
-    this.bg = new Background(game);
-    this.ground = new Ground(game, 0, game.height - 48, 480, 48);
+    this.bg = new Background(game, 'grass');
+    this.ground = new Ground(game, 0, game.height - 48, 480, 48, 'grass');
 
     this.playBtn = this.add.button(game.width * 0.5, game.height * 0.5, 'play_btn', this.startClick, this);
     this.playBtn.anchor.set(0.5);
@@ -453,6 +462,7 @@ BasicGame.Menu.prototype = {
 
   },
 
+/*
   shutdown: function() {
 
     this.bg = null;
@@ -460,6 +470,7 @@ BasicGame.Menu.prototype = {
     this.playBtn = null;
 
   },
+*/
 
   startClick: function() {
 
@@ -481,13 +492,13 @@ BasicGame.Preload.prototype = {
 
     this.preloadBar = this.add.sprite(game.width * 0.5, game.height * 0.5, 'preloader');
     this.preloadBar.anchor.set(0.5, 0.5);
-    this.load.setPreloadSprite(this.preloadBar);
+    this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
 
     this.load.atlas('sprites', 'res/sprites.png', 'res/sprites.json');
-    this.load.image('ground', 'res/ground_grass.png');
-    this.load.image('bg_front', 'res/bg_front_grass.png');
-    this.load.image('bg_clouds_1', 'res/bg_clouds1_grass.png');
-    this.load.image('bg_clouds_2', 'res/bg_clouds2_grass.png');
+    this.load.image('ground_grass', 'res/ground_grass.png');
+    this.load.image('bg_front_grass', 'res/bg_front_grass.png');
+    this.load.image('bg_clouds_1', 'res/bg_clouds_1.png');
+    this.load.image('bg_clouds_2', 'res/bg_clouds_2.png');
     this.load.image('board', 'res/board.png');
     this.load.image('play_btn', 'res/play.png');
     this.load.image('repeat_btn', 'res/repeat.png');
@@ -506,12 +517,17 @@ BasicGame.Preload.prototype = {
 
   update: function() {
 
-    if (this.ready == false) {
-      this.ready = true;
+    if (this.ready) {
       this.state.start('Menu');
     }
 
   },
+
+  onLoadComplete: function() {
+
+    this.ready = true;
+
+  }
 
 };
 var game = new Phaser.Game(300, 420, Phaser.Canvas, 'game_cont');

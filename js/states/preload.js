@@ -11,13 +11,13 @@ BasicGame.Preload.prototype = {
 
     this.preloadBar = this.add.sprite(game.width * 0.5, game.height * 0.5, 'preloader');
     this.preloadBar.anchor.set(0.5, 0.5);
-    this.load.setPreloadSprite(this.preloadBar);
+    this.load.onLoadComplete.addOnce(this.onLoadComplete, this);
 
     this.load.atlas('sprites', 'res/sprites.png', 'res/sprites.json');
-    this.load.image('ground', 'res/ground_grass.png');
-    this.load.image('bg_front', 'res/bg_front_grass.png');
-    this.load.image('bg_clouds_1', 'res/bg_clouds1_grass.png');
-    this.load.image('bg_clouds_2', 'res/bg_clouds2_grass.png');
+    this.load.image('ground_grass', 'res/ground_grass.png');
+    this.load.image('bg_front_grass', 'res/bg_front_grass.png');
+    this.load.image('bg_clouds_1', 'res/bg_clouds_1.png');
+    this.load.image('bg_clouds_2', 'res/bg_clouds_2.png');
     this.load.image('board', 'res/board.png');
     this.load.image('play_btn', 'res/play.png');
     this.load.image('repeat_btn', 'res/repeat.png');
@@ -36,11 +36,16 @@ BasicGame.Preload.prototype = {
 
   update: function() {
 
-    if (this.ready == false) {
-      this.ready = true;
+    if (this.ready) {
       this.state.start('Menu');
     }
 
   },
+
+  onLoadComplete: function() {
+
+    this.ready = true;
+
+  }
 
 };

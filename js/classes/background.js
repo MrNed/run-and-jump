@@ -1,4 +1,9 @@
-var Background = function(game) {
+var Background = function(game, type) {
+
+  if (typeof type === 'undefined') {
+    type = 'grass';
+  }
+
 
   game.stage.backgroundColor = '#d0f4f7';
 
@@ -8,7 +13,7 @@ var Background = function(game) {
   this.cloudsFirst = game.add.tileSprite(-200, game.height - 250, 967, 177, 'bg_clouds_1');
   this.cloudsFirst.autoScroll(-40, 0);
 
-  this.front = game.add.tileSprite(0, game.height - 264, 967, 264, 'bg_front');
+  this.front = game.add.tileSprite(0, game.height - 264, 967, 264, 'bg_front_' + type);
 
 };
 
