@@ -1,4 +1,5 @@
 var Board = function(game) {
+
   this.score = 0;
   this.scoreTxt = '';
   this.scoreField = 'Score:';
@@ -42,19 +43,26 @@ var Board = function(game) {
 
   this.board.alpha = 0;
   this.board.y = game.height;
+
 };
 
 Board.prototype.menuClick = function() {
-  game.state.start('menu');
+
+  game.state.start('Menu');
+
 };
 
 Board.prototype.repeatClick = function() {
-  game.state.start('play');
+
+  game.state.start('Game');
+
 };
 
 Board.prototype.show = function(score, best) {
+
   this.scoreText.text = score.toString();
   this.bestText.text = best.toString();
 
   game.add.tween(this.board).to({alpha:1, y: 0}, 500, Phaser.Easing.Exponential.Out, true, 0);
+
 };

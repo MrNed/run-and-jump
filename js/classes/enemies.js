@@ -1,4 +1,5 @@
 var Enemies = function (game) {
+
   this.enemiesCounter = 0;
   this.possibleEnemies = ['mouse', 'bee'];
 
@@ -20,12 +21,14 @@ var Enemies = function (game) {
   }
 
   return this;
+
 };
 
 Enemies.prototype = Object.create(Phaser.Group.prototype);
 Enemies.prototype.constructor = Enemies;
 
 Enemies.prototype.spawn = function () {
+
   if (this.game.time.time < this.nextSpawn) {
     return;
   }
@@ -41,4 +44,5 @@ Enemies.prototype.spawn = function () {
   this.nextSpawn = this.game.time.time + spawn;
 
   this.enemiesCounter++;
+
 };

@@ -1,4 +1,5 @@
 var Background = function(game) {
+
   game.stage.backgroundColor = '#d0f4f7';
 
   this.cloudsSecond = game.add.tileSprite(0, game.height - 320, 967, 177, 'bg_clouds_2');
@@ -8,19 +9,25 @@ var Background = function(game) {
   this.cloudsFirst.autoScroll(-40, 0);
 
   this.front = game.add.tileSprite(0, game.height - 264, 967, 264, 'bg_front');
+
 };
 
 Background.prototype = Object.create(Phaser.Group.prototype);
 Background.prototype.constructor = Background;
 
 Background.prototype.startFrontScroll = function() {
+
   this.front.autoScroll(-50, 0);
+
 };
 
 Background.prototype.stopFrontScroll = function() {
+
   this.front.autoScroll(0, 0);
+
 };
 var Enemies = function (game) {
+
   this.enemiesCounter = 0;
   this.possibleEnemies = ['mouse', 'bee'];
 
@@ -42,12 +49,14 @@ var Enemies = function (game) {
   }
 
   return this;
+
 };
 
 Enemies.prototype = Object.create(Phaser.Group.prototype);
 Enemies.prototype.constructor = Enemies;
 
 Enemies.prototype.spawn = function () {
+
   if (this.game.time.time < this.nextSpawn) {
     return;
   }
@@ -63,8 +72,10 @@ Enemies.prototype.spawn = function () {
   this.nextSpawn = this.game.time.time + spawn;
 
   this.enemiesCounter++;
+
 };
 var Enemy = function(game, key, enemyType) {
+
   this.enemyType = enemyType;
 
   Phaser.Sprite.call(this, game, 0, 0, key, enemyType + '.png');
@@ -78,18 +89,22 @@ var Enemy = function(game, key, enemyType) {
 
   this.animations.add('move', [enemyType + '.png', enemyType + '_move.png'], 5, true);
   this.animations.play('move');
+
 };
 
 Enemy.prototype = Object.create(Phaser.Sprite.prototype);
 Enemy.prototype.constructor = Enemy;
 
 Enemy.prototype.stop = function() {
+
   this.body.velocity.x = 0;
   this.body.moves = false;
   this.animations.stop();
+
 };
 
 Enemy.prototype.spawn = function (x, y, speed) {
+
   if (this.enemyType === 'bee') {
     y = y - 24;
   }
@@ -98,8 +113,10 @@ Enemy.prototype.spawn = function (x, y, speed) {
   this.hasScored = false;
 
   this.body.velocity.x = speed;
+
 };
 var Ground = function(game, x, y, width, height) {
+
   Phaser.TileSprite.call(this, game, x, y, width, height, 'ground');
 
   // FIX FOR BROKEN COLLISION IN PHASER 2.3.0
@@ -111,19 +128,25 @@ var Ground = function(game, x, y, width, height) {
   this.body.immovable = true;
 
   game.world.add(this);
+
 };
 
 Ground.prototype = Object.create(Phaser.TileSprite.prototype);
 Ground.prototype.constructor = Ground;
 
 Ground.prototype.startScroll = function() {
+
   this.autoScroll(-150, 0);
+
 };
 
 Ground.prototype.stopScroll = function() {
+
   this.autoScroll(0, 0);
+
 };
 var Board = function(game) {
+
   this.score = 0;
   this.scoreTxt = '';
   this.scoreField = 'Score:';
@@ -167,23 +190,31 @@ var Board = function(game) {
 
   this.board.alpha = 0;
   this.board.y = game.height;
+
 };
 
 Board.prototype.menuClick = function() {
-  game.state.start('menu');
+
+  game.state.start('Menu');
+
 };
 
 Board.prototype.repeatClick = function() {
-  game.state.start('play');
+
+  game.state.start('Game');
+
 };
 
 Board.prototype.show = function(score, best) {
+
   this.scoreText.text = score.toString();
   this.bestText.text = best.toString();
 
   game.add.tween(this.board).to({alpha:1, y: 0}, 500, Phaser.Easing.Exponential.Out, true, 0);
+
 };
 var Player = function(game, x, y, key, playerType, defaultFrame) {
+
   this.playerType = playerType;
   this.alive = true;
   this.doubleJump = true;
@@ -204,16 +235,20 @@ var Player = function(game, x, y, key, playerType, defaultFrame) {
   this.animations.add('runRight', [playerType + '_walk_1.png', playerType + '_walk_2.png'], 10, true);
 
   game.world.add(this);
+
 };
 
 Player.prototype = Object.create(Phaser.Sprite.prototype);
 Player.prototype.constructor = Player;
 
 Player.prototype.onGround = function() {
+
   return this.body.blocked.down || this.body.touching.down;
+
 };
 
 Player.prototype.jump = function() {
+
   if (this.alive && (this.onGround() || (!this.onGround() && this.doubleJump))) {
     this.animations.stop();
     this.frameName = this.playerType + '_jump.png';
@@ -225,53 +260,60 @@ Player.prototype.jump = function() {
       this.body.velocity.y = -this.jumpHeight;
     }
   }
+
 };
 
 Player.prototype.run = function() {
+
   if (this.onGround() && this.alive) {
     this.doubleJump = true;
     this.play('runRight');
   }
+
 };
 
 Player.prototype.hitEnemy = function() {
+
   this.alive = false;
   this.animations.stop();
   this.frameName = this.playerType + '_hit.png';
 
   this.body.gravity.y = 0;
   this.body.moves = false;
-};
-var Boot = function() {};
 
-Boot.prototype = {
+};
+var BasicGame = {};
+
+BasicGame.Boot = function() {
+
+};
+
+BasicGame.Boot.prototype = {
+
+  init: function() {
+
+    this.input.maxPointers = 1;
+    this.stage.disableVisibilityChange = true;
+
+  },
+
   preload: function() {
-    this.game.load.image('preloader', 'res/preloader.gif');
+
+    this.load.image('preloader', 'res/preloader.gif');
+
   },
+
   create: function() {
-    this.game.stage.backgroundColor = '#d0f4f7';
-    this.game.input.maxPointers = 1;
-    this.game.state.start('preload');
+
+    this.stage.backgroundColor = '#d0f4f7';
+
+    this.state.start('Preload');
+
   }
 
 };
-var Menu = function() {};
+BasicGame.Game = function(game) {
 
-Menu.prototype = {
-  create: function() {
-    this.bg = new Background(this.game);
-    this.ground = new Ground(this.game, 0, this.game.height - 48, 480, 48);
-
-    var startButton = this.add.button(game.width * 0.5, game.height * 0.5, 'play_btn', this.startClick, this);
-    startButton.anchor.set(0.5);
-    startButton.input.useHandCursor = true;
-  },
-  startClick: function() {
-    this.game.state.start('play');
-  }
-
-};
-var Play = function() {
   this.player = null;
   this.ground = null;
   this.enemies = null;
@@ -284,48 +326,55 @@ var Play = function() {
 
   this.timer = null;
   this.spawnDelay = 1000;
+
 };
 
-Play.prototype = {
+BasicGame.Game.prototype = {
+
   init: function () {
-    this.game.renderer.renderSession.roundPixels = true;
+
+    game.renderer.renderSession.roundPixels = true;
     this.physics.startSystem(Phaser.Physics.ARCADE);
     this.physics.arcade.gravity.y = 800;
 
-    this.game.time.advancedTiming = true;
   },
+
   create: function() {
-    this.bg = new Background(this.game);
+
+    this.bg = new Background(game);
     this.bg.startFrontScroll();
 
-    this.ground = new Ground(this.game, 0, this.game.height - 48, 480, 48);
+    this.ground = new Ground(game, 0, game.height - 48, 480, 48);
     this.ground.startScroll();
 
-    this.player = new Player(this.game, 48, this.game.height - 108, 'sprites', 'blue');
-    this.enemies = new Enemies(this.game);
+    this.player = new Player(game, 48, game.height - 108, 'sprites', 'blue');
+    this.enemies = new Enemies(game);
 
-    this.game.input.keyboard.addKeyCapture([Phaser.Keyboard.SPACEBAR]);
+    this.input.keyboard.addKeyCapture([Phaser.Keyboard.SPACEBAR]);
 
     var jumpKey = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     jumpKey.onDown.add(this.player.jump, this.player);
 
     this.input.onDown.add(this.player.jump, this.player);
 
-    this.scoreText = this.game.add.bitmapText(this.game.width * 0.5, 5, 'font', '0', 22);
+    this.scoreText = this.add.bitmapText(game.width * 0.5, 5, 'font', '0', 22);
 
-    this.timer = new Phaser.Timer(this.game);
+    this.timer = new Phaser.Timer(game);
     this.timer.add(this.spawnDelay, function() {
       this.spawn = true;
     }, this);
     this.timer.start();
 
-    this.board = new Board(this.game);
-  },
-  update: function() {
-    this.timer.update(this.game.time.time);
+    this.board = new Board(game);
 
-    this.game.physics.arcade.collide(this.player, this.ground);
-    this.game.physics.arcade.collide(this.player, this.enemies, this.die, null, this);
+  },
+
+  update: function() {
+
+    this.timer.update(game.time.time);
+
+    this.physics.arcade.collide(this.player, this.ground);
+    this.physics.arcade.collide(this.player, this.enemies, this.die, null, this);
 
     this.player.run();
 
@@ -337,13 +386,19 @@ Play.prototype = {
     this.enemies.forEach(function(enemy) {
       self.checkScore(enemy);
     });
+
   },
+
   shutdown: function() {
+
     this.score = 0;
     this.spawn = false;
     this.timer = null;
+
   },
+
   die: function(player, enemy) {
+
     this.spawn = false;
 
     this.physics.arcade.gravity.y = 0;
@@ -362,62 +417,108 @@ Play.prototype = {
     }
 
     this.board.show(this.score, this.bestScore);
+
   },
+
   checkScore: function(enemy) {
+
     if (enemy.exists && !enemy.hasScored && enemy.world.x <= this.player.world.x) {
       enemy.hasScored = true;
 
       this.score++;
       this.scoreText.text = this.score.toString();
     }
+
   },
-  render: function() {
-    this.game.debug.text(this.game.time.fps || '--', 2, 16, "#00ff00");
-  }
+
 };
-var Preload = function() {
-  this.asset = null;
-  this.ready = false;
+BasicGame.Menu = function() {
+
+  this.bg = null;
+  this.ground = null;
+  this.playBtn = null;
+
 };
 
-Preload.prototype = {
-  preload: function() {
-    this.asset = this.add.sprite(game.width * 0.5, game.height * 0.5, 'preloader');
-    this.asset.anchor.set(0.5, 0.5);
+BasicGame.Menu.prototype = {
 
-    this.game.load.onLoadComplete.addOnce(this.onLoadComplete, this);
-
-    this.game.load.atlas('sprites', 'res/sprites.png', 'res/sprites.json');
-    this.game.load.image('ground', 'res/ground_grass.png');
-    this.game.load.image('bg_front', 'res/bg_front_grass.png');
-    this.game.load.image('bg_clouds_1', 'res/bg_clouds1_grass.png');
-    this.game.load.image('bg_clouds_2', 'res/bg_clouds2_grass.png');
-    this.game.load.image('board', 'res/board.png');
-    this.game.load.image('play_btn', 'res/play.png');
-    this.game.load.image('repeat_btn', 'res/repeat.png');
-    this.game.load.image('menu_btn', 'res/menu.png');
-    this.game.load.image('score', 'res/score.png');
-    this.game.load.image('best', 'res/best.png');
-    this.load.bitmapFont('font', 'res/font.png', 'res/font.fnt');
-  },
   create: function() {
-    this.asset.cropEnabled = false;
+
+    this.bg = new Background(game);
+    this.ground = new Ground(game, 0, game.height - 48, 480, 48);
+
+    this.playBtn = this.add.button(game.width * 0.5, game.height * 0.5, 'play_btn', this.startClick, this);
+    this.playBtn.anchor.set(0.5);
+    this.playBtn.input.useHandCursor = true;
+
   },
-  update: function() {
-    if (!!this.ready) {
-      this.game.state.start('menu');
-    }
+
+  shutdown: function() {
+
+    this.bg = null;
+    this.ground = null;
+    this.playBtn = null;
+
   },
-  onLoadComplete: function() {
-    this.ready = true;
+
+  startClick: function() {
+
+    this.state.start('Game');
+
   }
+
+};
+BasicGame.Preload = function() {
+
+  this.preloadBar = null;
+  this.ready = false;
+
+};
+
+BasicGame.Preload.prototype = {
+
+  preload: function() {
+
+    this.preloadBar = this.add.sprite(game.width * 0.5, game.height * 0.5, 'preloader');
+    this.preloadBar.anchor.set(0.5, 0.5);
+    this.load.setPreloadSprite(this.preloadBar);
+
+    this.load.atlas('sprites', 'res/sprites.png', 'res/sprites.json');
+    this.load.image('ground', 'res/ground_grass.png');
+    this.load.image('bg_front', 'res/bg_front_grass.png');
+    this.load.image('bg_clouds_1', 'res/bg_clouds1_grass.png');
+    this.load.image('bg_clouds_2', 'res/bg_clouds2_grass.png');
+    this.load.image('board', 'res/board.png');
+    this.load.image('play_btn', 'res/play.png');
+    this.load.image('repeat_btn', 'res/repeat.png');
+    this.load.image('menu_btn', 'res/menu.png');
+    this.load.image('score', 'res/score.png');
+    this.load.image('best', 'res/best.png');
+    this.load.bitmapFont('font', 'res/font.png', 'res/font.fnt');
+
+  },
+
+  create: function() {
+
+    this.preloadBar.cropEnabled = false;
+
+  },
+
+  update: function() {
+
+    if (this.ready == false) {
+      this.ready = true;
+      this.state.start('Menu');
+    }
+
+  },
 
 };
 var game = new Phaser.Game(300, 420, Phaser.Canvas, 'game_cont');
 
-game.state.add('boot', new Boot());
-game.state.add('preload', new Preload());
-game.state.add('menu', new Menu());
-game.state.add('play', new Play());
+game.state.add('Boot', BasicGame.Boot);
+game.state.add('Preload', BasicGame.Preload);
+game.state.add('Menu', BasicGame.Menu);
+game.state.add('Game', BasicGame.Game);
 
-game.state.start('boot');
+game.state.start('Boot');
