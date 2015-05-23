@@ -1,13 +1,30 @@
-var Boot = function() {};
+var BasicGame = {};
 
-Boot.prototype = {
-  preload: function() {
-    this.game.load.image('preloader', 'res/preloader.gif');
+BasicGame.Boot = function() {
+
+};
+
+BasicGame.Boot.prototype = {
+
+  init: function() {
+
+    this.input.maxPointers = 1;
+    this.stage.disableVisibilityChange = true;
+
   },
+
+  preload: function() {
+
+    this.load.image('preloader', 'res/preloader.gif');
+
+  },
+
   create: function() {
-    this.game.stage.backgroundColor = '#d0f4f7';
-    this.game.input.maxPointers = 1;
-    this.game.state.start('preload');
+
+    this.stage.backgroundColor = '#d0f4f7';
+
+    this.state.start('Preload');
+
   }
 
 };
