@@ -36,7 +36,7 @@ Background.prototype.change = function(type) {
 
   this.front.loadTexture('bg_front_' + type);
 
-}
+};
 var Enemies = function (game) {
 
   this.enemiesCounter = 0;
@@ -127,7 +127,6 @@ Enemy.prototype.spawn = function (x, y, speed) {
 
 };
 var Ground = function(game, type) {
-
   if (typeof type === 'undefined') {
     type = 'grass';
   }
@@ -165,7 +164,7 @@ Ground.prototype.change = function(type) {
 
   this.loadTexture('ground_' + type);
 
-}
+};
 var Board = function(game, config) {
 
   this.config = config;
@@ -674,9 +673,7 @@ BasicGame.Menu.prototype = {
 
       this.config.playerType = this.player.typesArr[this.typeCounter];
     }
-
   }
-
 };
 BasicGame.Preload = function() {
 
@@ -703,7 +700,6 @@ BasicGame.Preload.prototype = {
     this.load.image('bg_clouds_1', 'res/bg_clouds_1.png');
     this.load.image('bg_clouds_2', 'res/bg_clouds_2.png');
     this.load.image('board', 'res/board.png');
-    this.load.image('play_btn', 'res/play.png');
     this.load.image('repeat_btn', 'res/repeat.png');
     this.load.image('menu_btn', 'res/menu.png');
     this.load.image('score', 'res/score.png');

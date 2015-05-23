@@ -36,4 +36,4 @@ Background.prototype.change = function(type) {
 
   this.front.loadTexture('bg_front_' + type);
 
-}
+};

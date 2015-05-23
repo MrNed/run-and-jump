@@ -203,7 +203,5 @@ BasicGame.Menu.prototype = {
 
       this.config.playerType = this.player.typesArr[this.typeCounter];
     }
-
   }
-
 };

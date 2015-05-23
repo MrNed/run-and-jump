@@ -1,5 +1,4 @@
 var Ground = function(game, type) {
-
   if (typeof type === 'undefined') {
     type = 'grass';
   }
@@ -37,4 +36,4 @@ Ground.prototype.change = function(type) {
 
   this.loadTexture('ground_' + type);
 
-}
+};
