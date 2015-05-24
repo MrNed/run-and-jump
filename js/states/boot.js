@@ -15,13 +15,14 @@ BasicGame.Boot.prototype = {
 
   preload: function() {
 
-    this.load.image('preloader', 'res/preloader.gif');
+    this.load.atlas('preloader', 'res/preloader.png', 'res/preloader.json');
+    // this.load.image('preloader', 'res/preloader.gif');
 
   },
 
   create: function() {
 
-    this.stage.backgroundColor = '#d0f4f7';
+    this.stage.backgroundColor = '#F5F5F5';
 
     this.state.start('Preload');
 
