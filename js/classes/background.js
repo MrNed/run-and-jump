@@ -13,7 +13,7 @@ var Background = function(game, type) {
   this.cloudsFirst = game.add.tileSprite(-200, game.height - 250, 967, 177, 'bg_clouds_1');
   this.cloudsFirst.autoScroll(-40, 0);
 
-  this.front = game.add.tileSprite(0, game.height - 264, 967, 264, 'bg_front_' + type);
+  this.front = game.add.tileSprite(0, game.height - 264, 967, 264, 'bg_' + type);
 
 };
 
@@ -34,6 +34,6 @@ Background.prototype.stopFrontScroll = function() {
 
 Background.prototype.change = function(type) {
 
-  this.front.loadTexture('bg_front_' + type);
+  this.front.loadTexture('bg_' + type);
 
 };

@@ -28,9 +28,9 @@ BasicGame.Preload.prototype = {
     this.load.image('ground_grass', 'res/ground_grass.png');
     this.load.image('ground_desert', 'res/ground_desert.png');
     this.load.image('ground_dirt', 'res/ground_dirt.png');
-    this.load.image('bg_front_grass', 'res/bg_front_grass.png');
-    this.load.image('bg_front_desert', 'res/bg_front_desert.png');
-    this.load.image('bg_front_dirt', 'res/bg_front_dirt.png');
+    this.load.image('bg_grass', 'res/bg_grass.png');
+    this.load.image('bg_desert', 'res/bg_desert.png');
+    this.load.image('bg_dirt', 'res/bg_dirt.png');
     this.load.image('bg_clouds_1', 'res/bg_clouds_1.png');
     this.load.image('bg_clouds_2', 'res/bg_clouds_2.png');
     this.load.image('board', 'res/board.png');

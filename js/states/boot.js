@@ -16,7 +16,6 @@ BasicGame.Boot.prototype = {
   preload: function() {
 
     this.load.atlas('preloader', 'res/preloader.png', 'res/preloader.json');
-    // this.load.image('preloader', 'res/preloader.gif');
 
   },
 
