@@ -42,8 +42,8 @@ var Board = function(game, config) {
   this.board.add(this.bestText);
   this.board.add(this.bestField);
 
-  // this.board.alpha = 0;
-  // this.board.y = game.height;
+  this.board.alpha = 0;
+  this.board.y = game.height;
 
 };
 
