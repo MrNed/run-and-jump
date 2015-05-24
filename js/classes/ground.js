@@ -36,4 +36,10 @@ Ground.prototype.change = function(type) {
 
   this.loadTexture('ground_' + type);
 
+  // SO WRONG...
+  var self = this;
+  setTimeout(function() {
+    self.loadTexture('bg_' + type);
+  }, 25);
+
 };

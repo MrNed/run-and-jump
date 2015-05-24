@@ -36,6 +36,12 @@ Background.prototype.change = function(type) {
 
   this.front.loadTexture('bg_' + type);
 
+  // SO WRONG...
+  var self = this;
+  setTimeout(function() {
+    self.front.loadTexture('bg_' + type);
+  }, 25);
+
 };
 var Enemies = function (game) {
 
@@ -163,6 +169,12 @@ Ground.prototype.stopScroll = function() {
 Ground.prototype.change = function(type) {
 
   this.loadTexture('ground_' + type);
+
+  // SO WRONG...
+  var self = this;
+  setTimeout(function() {
+    self.loadTexture('bg_' + type);
+  }, 25);
 
 };
 var Board = function(game, config) {
@@ -407,7 +419,6 @@ BasicGame.Game.prototype = {
     this.timer.add(this.spawnDelay, function() {
       this.spawn = true;
     }, this);
-    // this.timer.start();
 
     this.board = new Board(game, this.config);
 
@@ -536,7 +547,7 @@ BasicGame.Menu.prototype = {
     this.bgSelect.x = game.width;
     this.bgSelect.alpha = 0;
 
-    this.player = new Player(game, game.width * 0.5, game.height - 74, 'sprites', this.config.playerType);
+    this.player = new Player(game, game.width * 0.5, game.height - 78, 'sprites', this.config.playerType);
     this.player.body.allowGravity = false;
     this.player.x = -24;
     this.player.play('runRight');

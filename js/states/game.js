@@ -58,7 +58,6 @@ BasicGame.Game.prototype = {
     this.timer.add(this.spawnDelay, function() {
       this.spawn = true;
     }, this);
-    // this.timer.start();
 
     this.board = new Board(game, this.config);
 

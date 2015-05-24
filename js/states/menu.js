@@ -58,7 +58,7 @@ BasicGame.Menu.prototype = {
     this.bgSelect.x = game.width;
     this.bgSelect.alpha = 0;
 
-    this.player = new Player(game, game.width * 0.5, game.height - 74, 'sprites', this.config.playerType);
+    this.player = new Player(game, game.width * 0.5, game.height - 78, 'sprites', this.config.playerType);
     this.player.body.allowGravity = false;
     this.player.x = -24;
     this.player.play('runRight');

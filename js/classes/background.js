@@ -36,4 +36,10 @@ Background.prototype.change = function(type) {
 
   this.front.loadTexture('bg_' + type);
 
+  // SO WRONG...
+  var self = this;
+  setTimeout(function() {
+    self.front.loadTexture('bg_' + type);
+  }, 25);
+
 };
