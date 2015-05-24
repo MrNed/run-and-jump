@@ -373,6 +373,7 @@ BasicGame.Game = function(game) {
 
   this.timer = null;
   this.spawnDelay = 1000;
+  this.firstPlay = true;
 
 };
 
@@ -418,9 +419,23 @@ BasicGame.Game.prototype = {
     this.timer = new Phaser.Timer(game);
     this.timer.add(this.spawnDelay, function() {
       this.spawn = true;
+      this.firstPlay = false;
+      this.infoText.destroy();
     }, this);
 
     this.board = new Board(game, this.config);
+
+    if (this.firstPlay) {
+      var textStyle = {
+        font: '20px Verdana',
+        fill: '#FBFBFB',
+        stroke: '#424242',
+        strokeThickness: 2
+      };
+
+      this.infoText = this.game.add.text(game.width * 0.5, game.height * 0.5, 'Click to Jump', textStyle);
+      this.infoText.anchor.set(0.5);
+    }
 
   },
 
