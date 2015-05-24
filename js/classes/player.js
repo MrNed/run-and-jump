@@ -3,6 +3,7 @@ var Player = function(game, x, y, key, type, defaultFrame) {
   this.playerType = type;
   this.typesArr = ['blue', 'beige', 'green', 'pink', 'yellow'];
   this.alive = true;
+  this.allowJump = false;
   this.doubleJump = true;
   this.jumpHeight = 500;
   this.tweenInProgress = false;
@@ -36,7 +37,7 @@ Player.prototype.onGround = function() {
 
 Player.prototype.jump = function() {
 
-  if (this.alive && (this.onGround() || (!this.onGround() && this.doubleJump))) {
+  if (this.alive && this.allowJump && (this.onGround() || (!this.onGround() && this.doubleJump))) {
     this.animations.stop();
     this.frameName = this.playerType + '_jump.png';
 

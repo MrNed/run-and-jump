@@ -199,8 +199,8 @@ var Board = function(game, config) {
     strokeThickness: 3
   };
 
-  this.scoreText = game.add.bitmapText(game.width / 2, 150, 'font', '0', 22);
-  this.scoreField = game.add.image(game.width * 0.5 - 100, 150, 'score');
+  this.scoreText = game.add.bitmapText(game.width / 2, 120, 'font', '0', 22);
+  this.scoreField = game.add.image(game.width * 0.5 - 100, 120, 'score');
   this.bestText = game.add.bitmapText(game.width / 2, 180, 'font', '0', 22);
   this.bestField = game.add.image(game.width * 0.5 - 100, 180, 'best');
 
@@ -209,8 +209,8 @@ var Board = function(game, config) {
   this.board.add(this.bestText);
   this.board.add(this.bestField);
 
-  this.board.alpha = 0;
-  this.board.y = game.height;
+  // this.board.alpha = 0;
+  // this.board.y = game.height;
 
 };
 
@@ -239,6 +239,7 @@ var Player = function(game, x, y, key, type, defaultFrame) {
   this.playerType = type;
   this.typesArr = ['blue', 'beige', 'green', 'pink', 'yellow'];
   this.alive = true;
+  this.allowJump = false;
   this.doubleJump = true;
   this.jumpHeight = 500;
   this.tweenInProgress = false;
@@ -272,7 +273,7 @@ Player.prototype.onGround = function() {
 
 Player.prototype.jump = function() {
 
-  if (this.alive && (this.onGround() || (!this.onGround() && this.doubleJump))) {
+  if (this.alive && this.allowJump && (this.onGround() || (!this.onGround() && this.doubleJump))) {
     this.animations.stop();
     this.frameName = this.playerType + '_jump.png';
 
@@ -383,7 +384,14 @@ BasicGame.Game.prototype = {
     this.ground = new Ground(game, this.config.bgType);
     this.ground.startScroll();
 
-    this.player = new Player(game, 48, game.height - 78, 'sprites', this.config.playerType);
+    this.player = new Player(game, -20, game.height - 74, 'sprites', this.config.playerType);
+
+    var runInto = this.add.tween(this.player).to({x: 48}, 500, Phaser.Easing.Default, true);
+    runInto.onComplete.add(function() {
+      this.player.allowJump = true;
+      this.timer.start();
+    }, this);
+
     this.enemies = new Enemies(game);
 
     this.input.keyboard.addKeyCapture([Phaser.Keyboard.SPACEBAR]);
@@ -399,7 +407,7 @@ BasicGame.Game.prototype = {
     this.timer.add(this.spawnDelay, function() {
       this.spawn = true;
     }, this);
-    this.timer.start();
+    // this.timer.start();
 
     this.board = new Board(game, this.config);
 
@@ -528,7 +536,7 @@ BasicGame.Menu.prototype = {
     this.bgSelect.x = game.width;
     this.bgSelect.alpha = 0;
 
-    this.player = new Player(game, game.width * 0.5, game.height - 78, 'sprites', this.config.playerType);
+    this.player = new Player(game, game.width * 0.5, game.height - 74, 'sprites', this.config.playerType);
     this.player.body.allowGravity = false;
     this.player.x = -24;
     this.player.play('runRight');
@@ -711,8 +719,6 @@ BasicGame.Preload.prototype = {
     this.load.image('bg_clouds_1', 'res/bg_clouds_1.png');
     this.load.image('bg_clouds_2', 'res/bg_clouds_2.png');
     this.load.image('board', 'res/board.png');
-    this.load.image('repeat_btn', 'res/repeat.png');
-    this.load.image('menu_btn', 'res/menu.png');
     this.load.image('score', 'res/score.png');
     this.load.image('best', 'res/best.png');
 

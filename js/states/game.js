@@ -35,7 +35,14 @@ BasicGame.Game.prototype = {
     this.ground = new Ground(game, this.config.bgType);
     this.ground.startScroll();
 
-    this.player = new Player(game, 48, game.height - 78, 'sprites', this.config.playerType);
+    this.player = new Player(game, -20, game.height - 74, 'sprites', this.config.playerType);
+
+    var runInto = this.add.tween(this.player).to({x: 48}, 500, Phaser.Easing.Default, true);
+    runInto.onComplete.add(function() {
+      this.player.allowJump = true;
+      this.timer.start();
+    }, this);
+
     this.enemies = new Enemies(game);
 
     this.input.keyboard.addKeyCapture([Phaser.Keyboard.SPACEBAR]);
@@ -51,7 +58,7 @@ BasicGame.Game.prototype = {
     this.timer.add(this.spawnDelay, function() {
       this.spawn = true;
     }, this);
-    this.timer.start();
+    // this.timer.start();
 
     this.board = new Board(game, this.config);
 

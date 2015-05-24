@@ -34,8 +34,6 @@ BasicGame.Preload.prototype = {
     this.load.image('bg_clouds_1', 'res/bg_clouds_1.png');
     this.load.image('bg_clouds_2', 'res/bg_clouds_2.png');
     this.load.image('board', 'res/board.png');
-    this.load.image('repeat_btn', 'res/repeat.png');
-    this.load.image('menu_btn', 'res/menu.png');
     this.load.image('score', 'res/score.png');
     this.load.image('best', 'res/best.png');
 
