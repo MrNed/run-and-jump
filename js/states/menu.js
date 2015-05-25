@@ -28,29 +28,29 @@ BasicGame.Menu.prototype = {
 
     this.menu = this.add.group();
 
-    var playBtn = this.add.button(game.width * 0.5 - 48, game.height * 0.5, 'sprites', this.startClick, this, 'play_btn_hover.png', 'play_btn.png', 'play_btn.png');
+    var playBtn = this.add.button(game.width * 0.5 - 48, game.height * 0.5, 'sprites', this.startClick, this, 'play_btn.png', 'play_btn.png', 'play_btn_hover.png');
     playBtn.anchor.set(0.5);
     playBtn.input.useHandCursor = true;
     this.menu.add(playBtn);
 
-    var optionsBtn = this.add.button(game.width * 0.5 + 48, game.height * 0.5, 'sprites', this.showOptions, this, 'options_btn_hover.png', 'options_btn.png', 'options_btn.png');
+    var optionsBtn = this.add.button(game.width * 0.5 + 48, game.height * 0.5, 'sprites', this.showOptions, this, 'options_btn.png', 'options_btn.png', 'options_btn_hover.png');
     optionsBtn.anchor.set(0.5);
     optionsBtn.input.useHandCursor = true;
     this.menu.add(optionsBtn);
 
     this.bgSelect = this.add.group();
 
-    var grassBtn = this.add.button(game.width * 0.5 - 140, 100, 'sprites', this.selectBg, this, 'grass_btn_hover.png', 'grass_btn.png', 'grass_btn.png');
+    var grassBtn = this.add.button(game.width * 0.5 - 140, 100, 'sprites', this.selectBg, this, 'grass_btn.png', 'grass_btn.png', 'grass_btn_hover.png');
     grassBtn.type = 'grass';
     grassBtn.input.useHandCursor = true;
     this.bgSelect.add(grassBtn);
 
-    var desertBtn = this.add.button(game.width * 0.5 - 44, 100, 'sprites', this.selectBg, this, 'desert_btn_hover.png', 'desert_btn.png', 'desert_btn.png');
+    var desertBtn = this.add.button(game.width * 0.5 - 44, 100, 'sprites', this.selectBg, this, 'desert_btn.png', 'desert_btn.png', 'desert_btn_hover.png');
     desertBtn.type = 'desert';
     desertBtn.input.useHandCursor = true;
     this.bgSelect.add(desertBtn);
 
-    var dirtBtn = this.add.button(game.width * 0.5 + 52, 100, 'sprites', this.selectBg, this, 'dirt_btn_hover.png', 'dirt_btn.png', 'dirt_btn.png');
+    var dirtBtn = this.add.button(game.width * 0.5 + 52, 100, 'sprites', this.selectBg, this, 'dirt_btn.png', 'dirt_btn.png', 'dirt_btn_hover.png');
     dirtBtn.type = 'dirt';
     dirtBtn.input.useHandCursor = true;
     this.bgSelect.add(dirtBtn);
@@ -64,12 +64,12 @@ BasicGame.Menu.prototype = {
     this.player.play('runRight');
     this.playerSelect = this.add.group();
 
-    var nextBtn = this.add.button(game.width * 0.5 + 36, 320, 'sprites', this.selectPlayer, this, 'next_btn_hover.png', 'next_btn.png', 'next_btn.png');
+    var nextBtn = this.add.button(game.width * 0.5 + 36, 320, 'sprites', this.selectPlayer, this, 'next_btn.png', 'next_btn.png', 'next_btn_hover.png');
     nextBtn.direction = 'next';
     nextBtn.input.useHandCursor = true;
     this.playerSelect.add(nextBtn);
 
-    var prevBtn = this.add.button(game.width * 0.5 - 64, 320, 'sprites', this.selectPlayer, this, 'prev_btn_hover.png', 'prev_btn.png', 'prev_btn.png');
+    var prevBtn = this.add.button(game.width * 0.5 - 64, 320, 'sprites', this.selectPlayer, this, 'prev_btn.png', 'prev_btn.png', 'prev_btn_hover.png');
     prevBtn.direction = 'prev';
     prevBtn.input.useHandCursor = true;
     this.playerSelect.add(prevBtn);
@@ -77,11 +77,11 @@ BasicGame.Menu.prototype = {
     this.playerSelect.y = -20;
     this.playerSelect.alpha = 0;
 
-    this.menuReturn = this.add.button(-48, 16, 'sprites', this.showMenu, this, 'menu_btn_hover.png', 'menu_btn.png');
+    this.menuReturn = this.add.button(-48, 16, 'sprites', this.showMenu, this, 'menu_btn.png', 'menu_btn.png', 'menu_btn_hover');
     this.menuReturn.alpha = 0;
     this.menuReturn.input.useHandCursor = true;
 
-    this.startBtn = this.add.button(game.width, 16, 'sprites', this.startClick, this, 'play_btn_hover.png', 'play_btn.png', 'play_btn.png');
+    this.startBtn = this.add.button(game.width, 16, 'sprites', this.startClick, this, 'play_btn.png', 'play_btn.png', 'play_btn_hover.png');
     this.startBtn.alpha = 0;
     this.startBtn.input.useHandCursor = true;
 

@@ -13,13 +13,13 @@ var Board = function(game, config) {
   var board = game.add.image(game.width * 0.5 - 110, 100, 'board');
   this.board.add(board);
 
-  var menuButton = game.add.button(game.width - 75, 130, 'sprites', this.menuClick, this, 'menu_btn_hover.png', 'menu_btn.png');
+  var menuButton = game.add.button(game.width - 75, 130, 'sprites', this.menuClick, this, 'menu_btn.png', 'menu_btn.png', 'menu_btn_hover.png');
   menuButton.anchor.set(0.5);
   menuButton.input.useHandCursor = true;
 
   this.board.add(menuButton);
 
-  var repeatButton = game.add.button(game.width - 75, 190, 'sprites', this.repeatClick, this, 'repeat_btn_hover.png', 'repeat_btn.png');
+  var repeatButton = game.add.button(game.width - 75, 190, 'sprites', this.repeatClick, this, 'repeat_btn.png', 'repeat_btn.png', 'repeat_btn_hover.png');
   repeatButton.anchor.set(0.5);
   repeatButton.input.useHandCursor = true;
 
