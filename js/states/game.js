@@ -89,12 +89,11 @@ BasicGame.Game.prototype = {
 
     if (this.spawn) {
       this.enemies.spawn();
-    }
 
-    var self = this;
-    this.enemies.forEach(function(enemy) {
-      self.checkScore(enemy);
-    });
+      this.enemies.forEach(function(enemy) {
+        this.checkScore(enemy);
+      }, this);
+    }
 
   },
 
@@ -116,7 +115,6 @@ BasicGame.Game.prototype = {
 
     player.hitEnemy();
 
-    var self = this;
     this.enemies.forEach(function(enemy) {
       enemy.stop();
     });

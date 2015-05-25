@@ -101,18 +101,17 @@ BasicGame.Menu.prototype = {
 
   showOptions: function() {
 
-    var self = this;
     var menuOut = this.add.tween(this.menu).to({y: -100, alpha: 0}, 250, Phaser.Easing.Cubic.Out, true);
     var playerIn = this.add.tween(this.player).to({x: game.width * 0.5}, 900, Phaser.Easing.Default, false);
     playerIn.onComplete.add(function() {
-      self.player.play('stand');
-      self.tweenInProgress = false;
+      this.player.play('stand');
+      this.tweenInProgress = false;
 
-      self.add.tween(self.bgSelect).to({x: 0, alpha: 1}, 250, Phaser.Easing.Cubic.Out, true);
-      self.add.tween(self.playerSelect).to({y: 0, alpha: 1}, 250, Phaser.Easing.Cubic.Out, true);
-      self.add.tween(self.menuReturn).to({x: 16, alpha: 1}, 250, Phaser.Easing.Cubic.Out, true);
-      self.add.tween(self.startBtn).to({x: game.width - 42, alpha: 1}, 250, Phaser.Easing.Cubic.Out, true);
-    });
+      this.add.tween(this.bgSelect).to({x: 0, alpha: 1}, 250, Phaser.Easing.Cubic.Out, true);
+      this.add.tween(this.playerSelect).to({y: 0, alpha: 1}, 250, Phaser.Easing.Cubic.Out, true);
+      this.add.tween(this.menuReturn).to({x: 16, alpha: 1}, 250, Phaser.Easing.Cubic.Out, true);
+      this.add.tween(this.startBtn).to({x: game.width - 42, alpha: 1}, 250, Phaser.Easing.Cubic.Out, true);
+    }, this);
 
     menuOut.onComplete.add(function() {
       playerIn.start();
@@ -122,22 +121,21 @@ BasicGame.Menu.prototype = {
 
   showMenu: function() {
 
-    var self = this;
     var playerOut = this.add.tween(this.player).to({x: game.width + 24}, 900, Phaser.Easing.Default, false);
     playerOut.onComplete.add(function() {
-      self.player.x = -24;
-      self.add.tween(self.menu).to({y: 0, alpha: 1}, 250, Phaser.Easing.Cubic.Out, true);
-    });
+      this.player.x = -24;
+      this.add.tween(this.menu).to({y: 0, alpha: 1}, 250, Phaser.Easing.Cubic.Out, true);
+    }, this);
 
-    var optionsOut = this.add.tween(self.bgSelect).to({x: game.width, alpha: 0}, 250, Phaser.Easing.Cubic.Out, true);
-    this.add.tween(self.playerSelect).to({y: -20, alpha: 0}, 250, Phaser.Easing.Cubic.Out, true);
-    this.add.tween(self.menuReturn).to({x: -48, alpha: 0}, 250, Phaser.Easing.Cubic.Out, true);
-    this.add.tween(self.startBtn).to({x: game.width, alpha: 0}, 250, Phaser.Easing.Cubic.Out, true);
+    var optionsOut = this.add.tween(this.bgSelect).to({x: game.width, alpha: 0}, 250, Phaser.Easing.Cubic.Out, true);
+    this.add.tween(this.playerSelect).to({y: -20, alpha: 0}, 250, Phaser.Easing.Cubic.Out, true);
+    this.add.tween(this.menuReturn).to({x: -48, alpha: 0}, 250, Phaser.Easing.Cubic.Out, true);
+    this.add.tween(this.startBtn).to({x: game.width, alpha: 0}, 250, Phaser.Easing.Cubic.Out, true);
 
     optionsOut.onComplete.add(function() {
-      self.player.play('runRight');
+      this.player.play('runRight');
       playerOut.start();
-    });
+    }, this);
 
   },
 
@@ -171,27 +169,24 @@ BasicGame.Menu.prototype = {
         }
       }
 
-      var self = this,
-          player = this.player;
-
       var fadeIn = this.add.tween(this.playerSelect).to({y: 0, alpha: 1}, 100);
       var fadeOut = this.add.tween(this.playerSelect).to({y: -20, alpha: 0}, 100);
 
-      var runOutScreen = this.add.tween(player).to({x: game.width + 24}, 900, Phaser.Easing.Default, false);
+      var runOutScreen = this.add.tween(this.player).to({x: game.width + 24}, 900, Phaser.Easing.Default, false);
       runOutScreen.onComplete.add(function() {
-        player.addAnimations(player.typesArr[self.typeCounter]);
-        player.play('runRight');
+        this.player.addAnimations(this.player.typesArr[this.typeCounter]);
+        this.player.play('runRight');
 
-        player.x = -24;
-      });
+        this.player.x = -24;
+      }, this);
 
-      var runIntoScreen = this.add.tween(player).to({x: game.width * 0.5}, 900, Phaser.Easing.Default, false);
+      var runIntoScreen = this.add.tween(this.player).to({x: game.width * 0.5}, 900, Phaser.Easing.Default, false);
       runIntoScreen.onComplete.add(function() {
-        player.play('stand');
-        self.tweenInProgress = false;
+        this.player.play('stand');
+        this.tweenInProgress = false;
 
         fadeIn.start();
-      });
+      }, this);
 
       runOutScreen.chain(runIntoScreen);
 
