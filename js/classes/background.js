@@ -4,7 +4,6 @@ var Background = function(game, type) {
     type = 'grass';
   }
 
-
   game.stage.backgroundColor = '#d0f4f7';
 
   this.cloudsSecond = game.add.tileSprite(0, game.height - 320, 967, 177, 'bg_clouds_2');

@@ -14,6 +14,8 @@ BasicGame.Game = function(game) {
   this.spawnDelay = 1000;
   this.firstPlay = true;
 
+  this.phase = 1;
+
 };
 
 BasicGame.Game.prototype = {
@@ -43,6 +45,7 @@ BasicGame.Game.prototype = {
       this.player.allowJump = true;
       this.timer.start();
     }, this);
+
 
     this.enemies = new Enemies(game);
 
@@ -80,8 +83,6 @@ BasicGame.Game.prototype = {
 
   update: function() {
 
-    this.timer.update(game.time.time);
-
     this.physics.arcade.collide(this.player, this.ground);
     this.physics.arcade.collide(this.player, this.enemies, this.die, null, this);
 
@@ -93,14 +94,37 @@ BasicGame.Game.prototype = {
       this.enemies.forEach(function(enemy) {
         this.checkScore(enemy);
       }, this);
+    } else {
+      this.timer.update(game.time.time);
     }
+
+/*
+    if (this.score === 2 && this.phase === 1 && this.player.onGround()) {
+      this.player.allowJump = false;
+
+        var moveToEnd = game.add.tween(this.player).to({x: game.width - 48}, 500);
+        moveToEnd.onComplete.add(function() {
+          this.enemies.direction = 'right';
+          this.player.allowJump = true;
+          // this.spawn = true;
+          this.phase = 2;
+          // console.log('END!');
+        }, this);
+        moveToEnd.start();
+
+    }
+*/
 
   },
 
   shutdown: function() {
 
-    this.score = 0;
+    this.player = null;
+    this.ground = null;
+    this.enemies = null;
+    this.board = null;
     this.spawn = false;
+    this.score = 0;
     this.timer = null;
 
   },

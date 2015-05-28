@@ -4,7 +4,6 @@ var Background = function(game, type) {
     type = 'grass';
   }
 
-
   game.stage.backgroundColor = '#d0f4f7';
 
   this.cloudsSecond = game.add.tileSprite(0, game.height - 320, 967, 177, 'bg_clouds_2');
@@ -46,7 +45,8 @@ Background.prototype.change = function(type) {
 var Enemies = function (game) {
 
   this.enemiesCounter = 0;
-  this.possibleEnemies = ['mouse', 'bee'];
+  this.possibleEnemies = ['mouse', 'bee', 'fly', 'ladybug'];
+  // this.possibleEnemies = ['fly'];
 
   Phaser.Group.call(this, game, game.world, 'Enemies', false, true, Phaser.Physics.ARCADE);
 
@@ -56,12 +56,18 @@ var Enemies = function (game) {
   this.minSpeed = 200;
   this.maxSpeed = 400;
 
+  this.spawnSpeed = 0;
+  this.spawnRate = 0;
+  this.spawnX = 0;
+  this.direction = 'left';
+
   var i = 0,
+      j,
       length = this.possibleEnemies.length;
 
   for (i; i < length; i++) {
     for (j = 0; j < 3; j++) {
-      this.add(new Enemy(game, 'sprites', this.possibleEnemies[i]), true);
+      this.add(new Enemy(game, 'sprites', this.possibleEnemies[i], 'left'));
     }
   }
 
@@ -81,21 +87,33 @@ Enemies.prototype.spawn = function () {
   // RANDOMIZE ENEMIES - PROBABLY CAN BE DONE BETTER
   this.children.sort(function() { return 0.5 - Math.random() });
 
-  var speed = -(game.rnd.integerInRange(this.minSpeed, this.maxSpeed) + (this.enemiesCounter * 5));
-  var spawn = game.rnd.integerInRange(this.minSpawnRate, this.maxSpawnRate) - (this.enemiesCounter * 10);
+  // this.spawnSpeed = game.rnd.integerInRange(this.minSpeed, this.maxSpeed) + (this.enemiesCounter * 5);
+  this.spawnSpeed = game.rnd.integerInRange(this.minSpeed, this.maxSpeed) + (this.enemiesCounter * 2.5);
+  // this.spawnSpeed = game.rnd.integerInRange(this.minSpeed, this.maxSpeed);
 
-  this.getFirstExists(false).spawn(this.game.width, this.game.height - 72, speed);
+  if (this.direction === 'left') {
+    this.spawnSpeed *= -1;
+    this.spawnX = this.game.width + 24;
+  } else {
+    this.spawnX = 0;
+  }
 
-  this.nextSpawn = this.game.time.time + spawn;
+  // this.spawnRate = game.rnd.integerInRange(this.minSpawnRate, this.maxSpawnRate) - (this.enemiesCounter * 10);
+  this.spawnRate = game.rnd.integerInRange(this.minSpawnRate, this.maxSpawnRate) - (this.enemiesCounter * 5);
+  // this.spawnRate = game.rnd.integerInRange(this.minSpawnRate, this.maxSpawnRate);
+
+  this.getFirstExists(false).spawn(this.spawnX, this.game.height - 48, this.spawnSpeed, this.direction);
+
+  this.nextSpawn = this.game.time.time + this.spawnRate;
 
   this.enemiesCounter++;
 
 };
-var Enemy = function(game, key, enemyType) {
+var Enemy = function(game, key, enemyType, direction) {
 
   this.enemyType = enemyType;
 
-  Phaser.Sprite.call(this, game, 0, 0, key, enemyType + '.png');
+  Phaser.Sprite.call(this, game, 0, 0, key, enemyType + '_' + direction + '.png');
 
   game.physics.arcade.enable(this);
 
@@ -103,8 +121,8 @@ var Enemy = function(game, key, enemyType) {
   this.outOfBoundsKill = true;
   this.exists = false;
   this.body.allowGravity = false;
-
-  this.animations.add('move', [enemyType + '.png', enemyType + '_move.png'], 5, true);
+  this.anchor.set(1);
+  this.animations.add('move', [enemyType + '_' + direction +'.png', enemyType + '_move' + '_' + direction + '.png'], 5, true);
   this.animations.play('move');
 
 };
@@ -120,15 +138,28 @@ Enemy.prototype.stop = function() {
 
 };
 
-Enemy.prototype.spawn = function (x, y, speed) {
+Enemy.prototype.spawn = function (posX, posY, speed, direction) {
 
   if (this.enemyType === 'bee') {
-    y = y - 24;
+    posY -= 24;
   }
 
-  this.reset(x, y);
-  this.hasScored = false;
+  if (this.enemyType === 'fly') {
+    // posY -= 14;
+    posY -= 24;
+  }
 
+  if (direction === 'right') {
+    this.scale.x *= -1;
+  }
+
+  this.reset(posX, posY);
+  this.hasScored = false;
+/*
+  if (this.enemyType === 'fly') {
+    this.tween = this.game.add.tween(this).to({y: posY - 12}, 250, Phaser.Easing.Default, true, 0, -1, true);
+  }
+*/
   this.body.velocity.x = speed;
 
 };
@@ -375,6 +406,8 @@ BasicGame.Game = function(game) {
   this.spawnDelay = 1000;
   this.firstPlay = true;
 
+  this.phase = 1;
+
 };
 
 BasicGame.Game.prototype = {
@@ -404,6 +437,7 @@ BasicGame.Game.prototype = {
       this.player.allowJump = true;
       this.timer.start();
     }, this);
+
 
     this.enemies = new Enemies(game);
 
@@ -441,8 +475,6 @@ BasicGame.Game.prototype = {
 
   update: function() {
 
-    this.timer.update(game.time.time);
-
     this.physics.arcade.collide(this.player, this.ground);
     this.physics.arcade.collide(this.player, this.enemies, this.die, null, this);
 
@@ -454,14 +486,37 @@ BasicGame.Game.prototype = {
       this.enemies.forEach(function(enemy) {
         this.checkScore(enemy);
       }, this);
+    } else {
+      this.timer.update(game.time.time);
     }
+
+/*
+    if (this.score === 2 && this.phase === 1 && this.player.onGround()) {
+      this.player.allowJump = false;
+
+        var moveToEnd = game.add.tween(this.player).to({x: game.width - 48}, 500);
+        moveToEnd.onComplete.add(function() {
+          this.enemies.direction = 'right';
+          this.player.allowJump = true;
+          // this.spawn = true;
+          this.phase = 2;
+          // console.log('END!');
+        }, this);
+        moveToEnd.start();
+
+    }
+*/
 
   },
 
   shutdown: function() {
 
-    this.score = 0;
+    this.player = null;
+    this.ground = null;
+    this.enemies = null;
+    this.board = null;
     this.spawn = false;
+    this.score = 0;
     this.timer = null;
 
   },
