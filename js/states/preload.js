@@ -36,7 +36,10 @@ BasicGame.Preload.prototype = {
     this.load.image('board', 'res/board.png');
     this.load.image('score', 'res/score.png');
     this.load.image('best', 'res/best.png');
-
+    this.load.audio('music', 'res/audio/music.ogg');
+    this.load.audio('jump', 'res/audio/jump.wav');
+    this.load.audio('doublejump', 'res/audio/doublejump.wav');
+    this.load.audio('hit', 'res/audio/hit.wav');
     this.load.bitmapFont('font', 'res/font.png', 'res/font.fnt');
 
   },

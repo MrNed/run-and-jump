@@ -19,16 +19,16 @@ var Background = function(game, type) {
 Background.prototype = Object.create(Phaser.Group.prototype);
 Background.prototype.constructor = Background;
 
-Background.prototype.startFrontScroll = function() {
+Background.prototype.scroll = function(x) {
 
-  this.front.autoScroll(-50, 0);
+  this.front.autoScroll(x, 0);
 
 };
 
-Background.prototype.stopFrontScroll = function() {
+Background.prototype.scrollClouds = function(x1, x2) {
 
-  this.front.autoScroll(0, 0);
-
+  this.cloudsFirst.autoScroll(x1, 0);
+  this.cloudsSecond.autoScroll(x2, 0);
 };
 
 Background.prototype.change = function(type) {

@@ -8,6 +8,9 @@ var Player = function(game, x, y, key, type, defaultFrame) {
   this.jumpHeight = 500;
   this.tweenInProgress = false;
 
+  this.jumpSound = game.add.audio('jump');
+  this.doublejumpSound = game.add.audio('doublejump');
+
   if (typeof defaultFrame === 'undefined') {
     defaultFrame = 'walk_2';
   }
@@ -44,8 +47,10 @@ Player.prototype.jump = function() {
     if (!this.onGround()) {
       this.doubleJump = false;
       this.body.velocity.y = -(this.jumpHeight * 0.75);
+      this.doublejumpSound.play();
     } else {
       this.body.velocity.y = -this.jumpHeight;
+      this.jumpSound.play();
     }
   }
 

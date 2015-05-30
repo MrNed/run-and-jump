@@ -19,16 +19,16 @@ var Background = function(game, type) {
 Background.prototype = Object.create(Phaser.Group.prototype);
 Background.prototype.constructor = Background;
 
-Background.prototype.startFrontScroll = function() {
+Background.prototype.scroll = function(x) {
 
-  this.front.autoScroll(-50, 0);
+  this.front.autoScroll(x, 0);
 
 };
 
-Background.prototype.stopFrontScroll = function() {
+Background.prototype.scrollClouds = function(x1, x2) {
 
-  this.front.autoScroll(0, 0);
-
+  this.cloudsFirst.autoScroll(x1, 0);
+  this.cloudsSecond.autoScroll(x2, 0);
 };
 
 Background.prototype.change = function(type) {
@@ -44,15 +44,11 @@ Background.prototype.change = function(type) {
 };
 var Enemies = function (game) {
 
-  this.enemiesCounter = 0;
-  this.possibleEnemies = ['mouse', 'bee', 'fly', 'ladybug'];
-  // this.possibleEnemies = ['fly'];
-
   Phaser.Group.call(this, game, game.world, 'Enemies', false, true, Phaser.Physics.ARCADE);
 
   this.nextSpawn = 0;
   this.minSpawnRate = 1000;
-  this.maxSpawnRate = 2000;
+  this.maxSpawnRate = 1800;
   this.minSpeed = 200;
   this.maxSpeed = 400;
 
@@ -61,14 +57,12 @@ var Enemies = function (game) {
   this.spawnX = 0;
   this.direction = 'left';
 
-  var i = 0,
-      j,
-      length = this.possibleEnemies.length;
-
-  for (i; i < length; i++) {
-    for (j = 0; j < 3; j++) {
-      this.add(new Enemy(game, 'sprites', this.possibleEnemies[i], 'left'));
-    }
+  var i = 0;
+  for (i; i < 2; i++) {
+    this.add(new Mouse(game));
+    this.add(new Bee(game));
+    this.add(new Fly(game));
+    this.add(new Ladybug(game));
   }
 
   return this;
@@ -87,28 +81,113 @@ Enemies.prototype.spawn = function () {
   // RANDOMIZE ENEMIES - PROBABLY CAN BE DONE BETTER
   this.children.sort(function() { return 0.5 - Math.random() });
 
-  // this.spawnSpeed = game.rnd.integerInRange(this.minSpeed, this.maxSpeed) + (this.enemiesCounter * 5);
-  this.spawnSpeed = game.rnd.integerInRange(this.minSpeed, this.maxSpeed) + (this.enemiesCounter * 2.5);
-  // this.spawnSpeed = game.rnd.integerInRange(this.minSpeed, this.maxSpeed);
+  this.spawnSpeed = game.rnd.integerInRange(this.minSpeed, this.maxSpeed);
+  this.spawnRate = game.rnd.integerInRange(this.minSpawnRate, this.maxSpawnRate);
 
-  if (this.direction === 'left') {
-    this.spawnSpeed *= -1;
-    this.spawnX = this.game.width + 24;
+  if (this.direction === 'random') {
+    this.fromSide = game.rnd.pick(['left', 'right']);
   } else {
+    this.fromSide = this.direction;
+  }
+
+  if (this.fromSide === 'left') {
+    this.spawnSpeed *= -1;
+    this.spawnX = game.width + 24;
+  } else if (this.fromSide === 'right') {
+    this.fromSide = 'right';
     this.spawnX = 0;
   }
 
-  // this.spawnRate = game.rnd.integerInRange(this.minSpawnRate, this.maxSpawnRate) - (this.enemiesCounter * 10);
-  this.spawnRate = game.rnd.integerInRange(this.minSpawnRate, this.maxSpawnRate) - (this.enemiesCounter * 5);
-  // this.spawnRate = game.rnd.integerInRange(this.minSpawnRate, this.maxSpawnRate);
+  this.getFirstExists(false).spawn(this.spawnX, this.spawnSpeed, this.fromSide);
 
-  this.getFirstExists(false).spawn(this.spawnX, this.game.height - 48, this.spawnSpeed, this.direction);
-
-  this.nextSpawn = this.game.time.time + this.spawnRate;
-
-  this.enemiesCounter++;
+  this.nextSpawn = game.time.time + this.spawnRate;
 
 };
+
+Enemies.prototype.stop = function() {
+
+  this.forEach(function(enemy) {
+    enemy.stop();
+  });
+
+};
+
+Enemies.prototype.countOnScreen = function() {
+
+  var test = 0;
+
+  this.forEach(function(enemy) {
+    if (enemy.exists) {
+      test++;
+    }
+  });
+
+  return test;
+
+};
+var Enemy = function() {
+
+  this.direction = 'left';
+
+};
+
+Enemy.prototype = Object.create(Phaser.Sprite.prototype);
+Enemy.prototype.constructor = Enemy;
+
+Enemy.prototype.create = function(game, type) {
+
+  Phaser.Sprite.call(this, game, 0, 0, 'sprites', type + '.png');
+
+  game.physics.arcade.enable(this);
+
+  this.anchor.set(0.5, 1);
+
+  this.checkWorldBounds = true;
+  this.outOfBoundsKill = true;
+  this.exists = false;
+
+  this.body.allowGravity = false;
+
+  this.animations.add('move', [type + '.png', type + '_move' + '.png'], 5, true);
+  this.animations.play('move');
+}
+
+Enemy.prototype.stop = function() {
+
+  this.body.velocity.x = 0;
+  this.body.moves = false;
+  this.animations.stop();
+
+};
+
+Enemy.prototype.spawn = function(posX, speed, direction) {
+
+  if (direction !== this.direction) {
+    this.direction = direction;
+    this.scale.x *= -1;
+  }
+
+  this.reset(posX, this.posY);
+  this.hasScored = false;
+
+  this.body.velocity.x = speed;
+
+};
+
+Enemy.prototype.checkScore = function(player) {
+
+  if (this.exists && !this.hasScored) {
+    if (this.direction === 'left' && this.world.x <= player.world.x) {
+      return true;
+    } else if (this.direction === 'right' && this.world.x >= player.world.x) {
+      return true;
+    }
+  } else {
+    return false;
+  }
+
+};
+/*
 var Enemy = function(game, key, enemyType, direction) {
 
   this.enemyType = enemyType;
@@ -145,8 +224,8 @@ Enemy.prototype.spawn = function (posX, posY, speed, direction) {
   }
 
   if (this.enemyType === 'fly') {
-    // posY -= 14;
-    posY -= 24;
+    posY -= 14;
+    // posY -= 24;
   }
 
   if (direction === 'right') {
@@ -155,14 +234,17 @@ Enemy.prototype.spawn = function (posX, posY, speed, direction) {
 
   this.reset(posX, posY);
   this.hasScored = false;
-/*
-  if (this.enemyType === 'fly') {
-    this.tween = this.game.add.tween(this).to({y: posY - 12}, 250, Phaser.Easing.Default, true, 0, -1, true);
-  }
-*/
-  this.body.velocity.x = speed;
 
+  if (this.enemyType === 'fly') {
+    game.time.events.repeat(25, 80, function() {
+      this.body.velocity.y = Math.sin(game.time.now) * 50;
+    }, this);
+  }
+
+  // this.body.velocity.x = speed;
+  game.physics.arcade.moveToXY(this, 0, posY, -speed);
 };
+*/
 var Ground = function(game, type) {
   if (typeof type === 'undefined') {
     type = 'grass';
@@ -185,15 +267,9 @@ var Ground = function(game, type) {
 Ground.prototype = Object.create(Phaser.TileSprite.prototype);
 Ground.prototype.constructor = Ground;
 
-Ground.prototype.startScroll = function() {
+Ground.prototype.scroll = function(x) {
 
-  this.autoScroll(-150, 0);
-
-};
-
-Ground.prototype.stopScroll = function() {
-
-  this.autoScroll(0, 0);
+  this.autoScroll(x, 0);
 
 };
 
@@ -287,6 +363,9 @@ var Player = function(game, x, y, key, type, defaultFrame) {
   this.jumpHeight = 500;
   this.tweenInProgress = false;
 
+  this.jumpSound = game.add.audio('jump');
+  this.doublejumpSound = game.add.audio('doublejump');
+
   if (typeof defaultFrame === 'undefined') {
     defaultFrame = 'walk_2';
   }
@@ -323,8 +402,10 @@ Player.prototype.jump = function() {
     if (!this.onGround()) {
       this.doubleJump = false;
       this.body.velocity.y = -(this.jumpHeight * 0.75);
+      this.doublejumpSound.play();
     } else {
       this.body.velocity.y = -this.jumpHeight;
+      this.jumpSound.play();
     }
   }
 
@@ -360,6 +441,55 @@ Player.prototype.addAnimations = function(type) {
                                 type + '_stand_left.png'], 0.75, true);
 
 };
+var Bee = function(game) {
+
+  this.posY = game.height - 72;
+
+  this.create(game, 'bee');
+
+};
+
+Bee.prototype = new Enemy();
+Bee.prototype.constructor = Bee;
+var Fly = function(game) {
+
+  this.posY = game.height - 72;
+
+  this.create(game, 'fly');
+
+};
+
+Fly.prototype = new Enemy();
+Fly.prototype.constructor = Fly;
+
+Fly.prototype.update = function() {
+
+  game.time.events.repeat(25, 100, function() {
+    this.body.velocity.y = Math.sin(game.time.now) * 50;
+  }, this);
+
+
+};
+var Ladybug = function(game) {
+
+  this.posY = game.height - 48;
+
+  this.create(game, 'ladybug');
+
+};
+
+Ladybug.prototype = new Enemy(game);
+Ladybug.prototype.constructor = Ladybug;
+var Mouse = function(game) {
+
+  this.posY = game.height - 48;
+
+  this.create(game, 'mouse');
+
+};
+
+Mouse.prototype = new Enemy(game);
+Mouse.prototype.constructor = Mouse;
 var BasicGame = {};
 
 BasicGame.Boot = function() {
@@ -397,6 +527,8 @@ BasicGame.Game = function(game) {
   this.enemies = null;
   this.board = null;
   this.spawn = false;
+  this.music = null;
+  this.hitSound = null;
 
   this.score = 0;
   this.scoreText = '';
@@ -423,12 +555,17 @@ BasicGame.Game.prototype = {
   },
 
   create: function() {
+    this.music = game.add.audio('music');
+    this.music.play();
+    this.music.volume = 0.75;
+
+    this.hitSound = game.add.audio('hit');
 
     this.bg = new Background(game, this.config.bgType);
-    this.bg.startFrontScroll();
+    this.bg.scroll(-50);
 
     this.ground = new Ground(game, this.config.bgType);
-    this.ground.startScroll();
+    this.ground.scroll(-150);
 
     this.player = new Player(game, -20, game.height - 74, 'sprites', this.config.playerType);
 
@@ -484,28 +621,27 @@ BasicGame.Game.prototype = {
       this.enemies.spawn();
 
       this.enemies.forEach(function(enemy) {
-        this.checkScore(enemy);
+
+        if (enemy.checkScore(this.player)) {
+          enemy.hasScored = true;
+
+          this.score++;
+          this.scoreText.text = this.score.toString();
+        }
+
       }, this);
     } else {
       this.timer.update(game.time.time);
     }
 
-/*
-    if (this.score === 2 && this.phase === 1 && this.player.onGround()) {
-      this.player.allowJump = false;
 
-        var moveToEnd = game.add.tween(this.player).to({x: game.width - 48}, 500);
-        moveToEnd.onComplete.add(function() {
-          this.enemies.direction = 'right';
-          this.player.allowJump = true;
-          // this.spawn = true;
-          this.phase = 2;
-          // console.log('END!');
-        }, this);
-        moveToEnd.start();
-
+    if (this.score >= 10 && this.phase === 1 && this.player.onGround()) {
+      this.moveToNextPhase(2);
     }
-*/
+
+    if (this.score >= 20 && this.phase === 2 && this.player.onGround()) {
+      this.moveToNextPhase(3);
+    }
 
   },
 
@@ -518,22 +654,24 @@ BasicGame.Game.prototype = {
     this.spawn = false;
     this.score = 0;
     this.timer = null;
+    this.phase = 1;
+    this.music.stop();
 
   },
 
   die: function(player, enemy) {
 
+    this.hitSound.play();
+
     this.spawn = false;
 
     this.physics.arcade.gravity.y = 0;
-    this.ground.stopScroll();
-    this.bg.stopFrontScroll();
+    this.ground.scroll(0);
+    this.bg.scroll(0);
 
     player.hitEnemy();
 
-    this.enemies.forEach(function(enemy) {
-      enemy.stop();
-    });
+    this.enemies.stop();
 
     if (this.score > this.bestScore) {
       this.bestScore = this.score;
@@ -543,13 +681,67 @@ BasicGame.Game.prototype = {
 
   },
 
-  checkScore: function(enemy) {
+  moveToNextPhase: function(phase) {
 
-    if (enemy.exists && !enemy.hasScored && enemy.world.x <= this.player.world.x) {
-      enemy.hasScored = true;
+    if (this.enemies.countOnScreen() === 0) {
+      this.spawn = false;
+      this.player.allowJump = false;
 
-      this.score++;
-      this.scoreText.text = this.score.toString();
+      if (phase === 2) {
+        this.phaseTwo();
+      } else if (phase === 3) {
+        this.phaseThree();
+      }
+    }
+  },
+
+  phaseTwo: function() {
+
+    this.bg.scroll(-100);
+    this.bg.scrollClouds(-60, -40);
+    this.ground.scroll(-200);
+
+    var destination = game.width - 48;
+
+    if (this.player.x < destination) {
+      game.physics.arcade.moveToXY(this.player, destination, this.player.y, 150);
+    } else {
+      this.phase = 2;
+      this.player.body.velocity.x = 0;
+      this.player.allowJump = true;
+
+      this.bg.scroll(-50);
+      this.bg.scrollClouds(-40, -20);
+      this.ground.scroll(-150);
+
+      this.spawn = true;
+      this.enemies.direction = 'right';
+    }
+
+  },
+
+  phaseThree: function() {
+
+    this.bg.scroll(-25);
+    this.bg.scrollClouds(-30, -10);
+    this.ground.scroll(-100);
+
+    var destination = game.width / 2;
+
+    if (this.player.x > destination) {
+      game.physics.arcade.moveToXY(this.player, destination, this.player.y, 150);
+    } else {
+      this.phase = 3;
+      this.player.body.velocity.x = 0;
+      this.player.allowJump = true;
+
+      this.bg.scroll(-50);
+      this.bg.scrollClouds(-40, -20);
+      this.ground.scroll(-150);
+
+      this.spawn = true;
+      this.enemies.maxSpeed = 275;
+      this.enemies.direction = 'random';
     }
 
   },
@@ -634,7 +826,7 @@ BasicGame.Menu.prototype = {
     this.playerSelect.y = -20;
     this.playerSelect.alpha = 0;
 
-    this.menuReturn = this.add.button(-48, 16, 'sprites', this.showMenu, this, 'menu_btn.png', 'menu_btn.png', 'menu_btn_hover');
+    this.menuReturn = this.add.button(-48, 16, 'sprites', this.showMenu, this, 'menu_btn.png', 'menu_btn.png', 'menu_btn_hover.png');
     this.menuReturn.alpha = 0;
     this.menuReturn.input.useHandCursor = true;
 
@@ -795,7 +987,10 @@ BasicGame.Preload.prototype = {
     this.load.image('board', 'res/board.png');
     this.load.image('score', 'res/score.png');
     this.load.image('best', 'res/best.png');
-
+    this.load.audio('music', 'res/audio/music.ogg');
+    this.load.audio('jump', 'res/audio/jump.wav');
+    this.load.audio('doublejump', 'res/audio/doublejump.wav');
+    this.load.audio('hit', 'res/audio/hit.wav');
     this.load.bitmapFont('font', 'res/font.png', 'res/font.fnt');
 
   },

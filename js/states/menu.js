@@ -77,7 +77,7 @@ BasicGame.Menu.prototype = {
     this.playerSelect.y = -20;
     this.playerSelect.alpha = 0;
 
-    this.menuReturn = this.add.button(-48, 16, 'sprites', this.showMenu, this, 'menu_btn.png', 'menu_btn.png', 'menu_btn_hover');
+    this.menuReturn = this.add.button(-48, 16, 'sprites', this.showMenu, this, 'menu_btn.png', 'menu_btn.png', 'menu_btn_hover.png');
     this.menuReturn.alpha = 0;
     this.menuReturn.input.useHandCursor = true;
 

@@ -20,15 +20,9 @@ var Ground = function(game, type) {
 Ground.prototype = Object.create(Phaser.TileSprite.prototype);
 Ground.prototype.constructor = Ground;
 
-Ground.prototype.startScroll = function() {
+Ground.prototype.scroll = function(x) {
 
-  this.autoScroll(-150, 0);
-
-};
-
-Ground.prototype.stopScroll = function() {
-
-  this.autoScroll(0, 0);
+  this.autoScroll(x, 0);
 
 };
 

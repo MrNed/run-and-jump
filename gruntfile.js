@@ -8,7 +8,8 @@ module.exports = function(grunt) {
         files: [
           'js/main.js',
           'js/classes/*.js',
-          'js/states/*.js'
+          'js/states/*.js',
+          'js/classes/enemies/*.js'
         ],
         tasks: [
           'concat',
@@ -16,6 +17,7 @@ module.exports = function(grunt) {
         ],
         options: {
           spawn: false,
+          livereload: true,
         },
       },
     },
@@ -30,6 +32,7 @@ module.exports = function(grunt) {
       dist: {
         src: [
           'js/classes/*.js',
+          'js/classes/enemies/*.js',
           'js/states/*.js',
           'js/main.js'
         ],

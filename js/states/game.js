@@ -5,6 +5,8 @@ BasicGame.Game = function(game) {
   this.enemies = null;
   this.board = null;
   this.spawn = false;
+  this.music = null;
+  this.hitSound = null;
 
   this.score = 0;
   this.scoreText = '';
@@ -31,12 +33,17 @@ BasicGame.Game.prototype = {
   },
 
   create: function() {
+    this.music = game.add.audio('music');
+    this.music.play();
+    this.music.volume = 0.75;
+
+    this.hitSound = game.add.audio('hit');
 
     this.bg = new Background(game, this.config.bgType);
-    this.bg.startFrontScroll();
+    this.bg.scroll(-50);
 
     this.ground = new Ground(game, this.config.bgType);
-    this.ground.startScroll();
+    this.ground.scroll(-150);
 
     this.player = new Player(game, -20, game.height - 74, 'sprites', this.config.playerType);
 
@@ -92,28 +99,27 @@ BasicGame.Game.prototype = {
       this.enemies.spawn();
 
       this.enemies.forEach(function(enemy) {
-        this.checkScore(enemy);
+
+        if (enemy.checkScore(this.player)) {
+          enemy.hasScored = true;
+
+          this.score++;
+          this.scoreText.text = this.score.toString();
+        }
+
       }, this);
     } else {
       this.timer.update(game.time.time);
     }
 
-/*
-    if (this.score === 2 && this.phase === 1 && this.player.onGround()) {
-      this.player.allowJump = false;
 
-        var moveToEnd = game.add.tween(this.player).to({x: game.width - 48}, 500);
-        moveToEnd.onComplete.add(function() {
-          this.enemies.direction = 'right';
-          this.player.allowJump = true;
-          // this.spawn = true;
-          this.phase = 2;
-          // console.log('END!');
-        }, this);
-        moveToEnd.start();
-
+    if (this.score >= 10 && this.phase === 1 && this.player.onGround()) {
+      this.moveToNextPhase(2);
     }
-*/
+
+    if (this.score >= 20 && this.phase === 2 && this.player.onGround()) {
+      this.moveToNextPhase(3);
+    }
 
   },
 
@@ -126,22 +132,24 @@ BasicGame.Game.prototype = {
     this.spawn = false;
     this.score = 0;
     this.timer = null;
+    this.phase = 1;
+    this.music.stop();
 
   },
 
   die: function(player, enemy) {
 
+    this.hitSound.play();
+
     this.spawn = false;
 
     this.physics.arcade.gravity.y = 0;
-    this.ground.stopScroll();
-    this.bg.stopFrontScroll();
+    this.ground.scroll(0);
+    this.bg.scroll(0);
 
     player.hitEnemy();
 
-    this.enemies.forEach(function(enemy) {
-      enemy.stop();
-    });
+    this.enemies.stop();
 
     if (this.score > this.bestScore) {
       this.bestScore = this.score;
@@ -151,13 +159,67 @@ BasicGame.Game.prototype = {
 
   },
 
-  checkScore: function(enemy) {
+  moveToNextPhase: function(phase) {
 
-    if (enemy.exists && !enemy.hasScored && enemy.world.x <= this.player.world.x) {
-      enemy.hasScored = true;
+    if (this.enemies.countOnScreen() === 0) {
+      this.spawn = false;
+      this.player.allowJump = false;
 
-      this.score++;
-      this.scoreText.text = this.score.toString();
+      if (phase === 2) {
+        this.phaseTwo();
+      } else if (phase === 3) {
+        this.phaseThree();
+      }
+    }
+  },
+
+  phaseTwo: function() {
+
+    this.bg.scroll(-100);
+    this.bg.scrollClouds(-60, -40);
+    this.ground.scroll(-200);
+
+    var destination = game.width - 48;
+
+    if (this.player.x < destination) {
+      game.physics.arcade.moveToXY(this.player, destination, this.player.y, 150);
+    } else {
+      this.phase = 2;
+      this.player.body.velocity.x = 0;
+      this.player.allowJump = true;
+
+      this.bg.scroll(-50);
+      this.bg.scrollClouds(-40, -20);
+      this.ground.scroll(-150);
+
+      this.spawn = true;
+      this.enemies.direction = 'right';
+    }
+
+  },
+
+  phaseThree: function() {
+
+    this.bg.scroll(-25);
+    this.bg.scrollClouds(-30, -10);
+    this.ground.scroll(-100);
+
+    var destination = game.width / 2;
+
+    if (this.player.x > destination) {
+      game.physics.arcade.moveToXY(this.player, destination, this.player.y, 150);
+    } else {
+      this.phase = 3;
+      this.player.body.velocity.x = 0;
+      this.player.allowJump = true;
+
+      this.bg.scroll(-50);
+      this.bg.scrollClouds(-40, -20);
+      this.ground.scroll(-150);
+
+      this.spawn = true;
+      this.enemies.maxSpeed = 275;
+      this.enemies.direction = 'random';
     }
 
   },
