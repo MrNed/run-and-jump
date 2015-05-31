@@ -48,7 +48,7 @@ Enemies.prototype.spawn = function () {
 
   if (this.fromSide === 'left') {
     this.spawnSpeed *= -1;
-    this.spawnX = game.width + 24;
+    this.spawnX = game.width + 20;
   } else if (this.fromSide === 'right') {
     this.fromSide = 'right';
     this.spawnX = 0;
@@ -56,7 +56,7 @@ Enemies.prototype.spawn = function () {
 
   this.getFirstExists(false).spawn(this.spawnX, this.spawnSpeed, this.fromSide);
 
-  this.nextSpawn = game.time.time + this.spawnRate;
+  this.nextSpawn = this.game.time.time + this.spawnRate;
 
 };
 

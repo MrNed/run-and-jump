@@ -1,5 +1,6 @@
-var Player = function(game, x, y, key, type, defaultFrame) {
+var Player = function(game, x, y, key, type, sound) {
 
+  this.soundMute = sound;
   this.playerType = type;
   this.typesArr = ['blue', 'beige', 'green', 'pink', 'yellow'];
   this.alive = true;
@@ -11,11 +12,7 @@ var Player = function(game, x, y, key, type, defaultFrame) {
   this.jumpSound = game.add.audio('jump');
   this.doublejumpSound = game.add.audio('doublejump');
 
-  if (typeof defaultFrame === 'undefined') {
-    defaultFrame = 'walk_2';
-  }
-
-  Phaser.Sprite.call(this, game, x, y, key, type + '_' + defaultFrame + '.png');
+  Phaser.Sprite.call(this, game, x, y, key, type + '_walk_2.png');
 
   game.physics.arcade.enable(this);
 
@@ -47,10 +44,16 @@ Player.prototype.jump = function() {
     if (!this.onGround()) {
       this.doubleJump = false;
       this.body.velocity.y = -(this.jumpHeight * 0.75);
-      this.doublejumpSound.play();
+
+      if (!this.soundMute) {
+        this.doublejumpSound.play();
+      }
     } else {
       this.body.velocity.y = -this.jumpHeight;
-      this.jumpSound.play();
+
+      if (!this.soundMute) {
+        this.jumpSound.play();
+      }
     }
   }
 

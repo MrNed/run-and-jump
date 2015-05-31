@@ -92,7 +92,7 @@ Enemies.prototype.spawn = function () {
 
   if (this.fromSide === 'left') {
     this.spawnSpeed *= -1;
-    this.spawnX = game.width + 24;
+    this.spawnX = game.width + 20;
   } else if (this.fromSide === 'right') {
     this.fromSide = 'right';
     this.spawnX = 0;
@@ -100,7 +100,7 @@ Enemies.prototype.spawn = function () {
 
   this.getFirstExists(false).spawn(this.spawnX, this.spawnSpeed, this.fromSide);
 
-  this.nextSpawn = game.time.time + this.spawnRate;
+  this.nextSpawn = this.game.time.time + this.spawnRate;
 
 };
 
@@ -311,13 +311,6 @@ var Board = function(game, config) {
 
   this.board.add(repeatButton);
 
-  var textStyle = {
-    font: '24px Share Tech Mono',
-    fill: '#FBFBFB',
-    stroke: '#424242',
-    strokeThickness: 3
-  };
-
   this.scoreText = game.add.bitmapText(game.width / 2, 120, 'font', '0', 22);
   this.scoreField = game.add.image(game.width * 0.5 - 100, 120, 'score');
   this.bestText = game.add.bitmapText(game.width / 2, 180, 'font', '0', 22);
@@ -353,8 +346,9 @@ Board.prototype.show = function(score, best) {
   game.add.tween(this.board).to({alpha:1, y: 0}, 500, Phaser.Easing.Exponential.Out, true, 0);
 
 };
-var Player = function(game, x, y, key, type, defaultFrame) {
+var Player = function(game, x, y, key, type, sound) {
 
+  this.soundMute = sound;
   this.playerType = type;
   this.typesArr = ['blue', 'beige', 'green', 'pink', 'yellow'];
   this.alive = true;
@@ -366,11 +360,7 @@ var Player = function(game, x, y, key, type, defaultFrame) {
   this.jumpSound = game.add.audio('jump');
   this.doublejumpSound = game.add.audio('doublejump');
 
-  if (typeof defaultFrame === 'undefined') {
-    defaultFrame = 'walk_2';
-  }
-
-  Phaser.Sprite.call(this, game, x, y, key, type + '_' + defaultFrame + '.png');
+  Phaser.Sprite.call(this, game, x, y, key, type + '_walk_2.png');
 
   game.physics.arcade.enable(this);
 
@@ -402,10 +392,16 @@ Player.prototype.jump = function() {
     if (!this.onGround()) {
       this.doubleJump = false;
       this.body.velocity.y = -(this.jumpHeight * 0.75);
-      this.doublejumpSound.play();
+
+      if (!this.soundMute) {
+        this.doublejumpSound.play();
+      }
     } else {
       this.body.velocity.y = -this.jumpHeight;
-      this.jumpSound.play();
+
+      if (!this.soundMute) {
+        this.jumpSound.play();
+      }
     }
   }
 
@@ -539,7 +535,8 @@ BasicGame.Game = function(game) {
   this.firstPlay = true;
 
   this.phase = 1;
-
+  this.phaseTwoStartScore = 15;
+  this.phaseThreeStartScore = 30;
 };
 
 BasicGame.Game.prototype = {
@@ -555,9 +552,11 @@ BasicGame.Game.prototype = {
   },
 
   create: function() {
-    this.music = game.add.audio('music');
-    this.music.play();
-    this.music.volume = 0.75;
+    this.music = game.add.audio('music', 0.75, true);
+
+    if (!this.config.music_mute) {
+      this.music.play();
+    }
 
     this.hitSound = game.add.audio('hit');
 
@@ -567,14 +566,13 @@ BasicGame.Game.prototype = {
     this.ground = new Ground(game, this.config.bgType);
     this.ground.scroll(-150);
 
-    this.player = new Player(game, -20, game.height - 74, 'sprites', this.config.playerType);
+    this.player = new Player(game, -20, game.height - 74, 'sprites', this.config.playerType, this.config.sound_mute);
 
     var runInto = this.add.tween(this.player).to({x: 48}, 500, Phaser.Easing.Default, true);
     runInto.onComplete.add(function() {
       this.player.allowJump = true;
       this.timer.start();
     }, this);
-
 
     this.enemies = new Enemies(game);
 
@@ -634,12 +632,11 @@ BasicGame.Game.prototype = {
       this.timer.update(game.time.time);
     }
 
-
-    if (this.score >= 10 && this.phase === 1 && this.player.onGround()) {
+    if (this.score >= this.phaseTwoStartScore && this.phase === 1 && this.player.onGround()) {
       this.moveToNextPhase(2);
     }
 
-    if (this.score >= 20 && this.phase === 2 && this.player.onGround()) {
+    if (this.score >= this.phaseThreeStartScore && this.phase === 2 && this.player.onGround()) {
       this.moveToNextPhase(3);
     }
 
@@ -661,7 +658,9 @@ BasicGame.Game.prototype = {
 
   die: function(player, enemy) {
 
-    this.hitSound.play();
+    if (!this.config.sound_mute) {
+      this.hitSound.play();
+    }
 
     this.spawn = false;
 
@@ -741,6 +740,8 @@ BasicGame.Game.prototype = {
 
       this.spawn = true;
       this.enemies.maxSpeed = 275;
+      this.minSpawnRate = 1200;
+      this.maxSpawnRate = 2000;
       this.enemies.direction = 'random';
     }
 
@@ -763,7 +764,9 @@ BasicGame.Menu.prototype = {
       config = {
         bgType: 'grass',
         playerType: 'blue',
-        bestScore: 0
+        bestScore: 0,
+        music_mute: false,
+        sound_mute: false
       };
     }
 
@@ -834,6 +837,80 @@ BasicGame.Menu.prototype = {
     this.startBtn.alpha = 0;
     this.startBtn.input.useHandCursor = true;
 
+    this.minMenu = this.add.group();
+
+    this.helpBtn = this.add.button(5, 5, 'sprites', this.help, this, 'help_btn.png', 'help_btn.png', 'help_btn_hover.png');
+    this.helpBtn.input.useHandCursor = true;
+    this.minMenu.add(this.helpBtn);
+
+    this.musicOnBtn = this.add.button(game.width - 28, 6, 'sprites', this.mute, this, 'music_on_btn.png', 'music_on_btn.png', 'music_on_btn_hover.png');
+    this.musicOnBtn.input.useHandCursor = true;
+    this.musicOnBtn.action = 'off';
+    this.musicOnBtn.type = 'music';
+    this.minMenu.add(this.musicOnBtn);
+
+    this.musicOffBtn = this.add.button(game.width - 28, 6, 'sprites', this.mute, this, 'music_off_btn.png', 'music_off_btn.png', 'music_off_btn_hover.png');
+    this.musicOffBtn.input.useHandCursor = true;
+    this.musicOffBtn.action = 'on';
+    this.musicOffBtn.type = 'music';
+    this.minMenu.add(this.musicOffBtn);
+
+    if (this.config.music_mute) {
+      this.musicOnBtn.alpha = 0;
+      this.musicOnBtn.exists = false;
+    } else {
+      this.musicOffBtn.alpha = 0;
+      this.musicOffBtn.exists = false;
+    }
+
+    this.soundOnBtn = this.add.button(game.width - 56, 9, 'sprites', this.mute, this, 'sound_on_btn.png', 'sound_on_btn.png', 'sound_on_btn_hover.png');
+    this.soundOnBtn.input.useHandCursor = true;
+    this.soundOnBtn.action = 'off';
+    this.soundOnBtn.type = 'sound';
+    this.minMenu.add(this.soundOnBtn);
+
+    this.soundOffBtn = this.add.button(game.width - 56, 9, 'sprites', this.mute, this, 'sound_off_btn.png', 'sound_off_btn.png', 'sound_off_btn_hover.png');
+    this.soundOffBtn.input.useHandCursor = true;
+    this.soundOffBtn.action = 'on';
+    this.soundOffBtn.type = 'sound';
+    this.minMenu.add(this.soundOffBtn);
+
+    if (this.config.sound_mute) {
+      this.soundOnBtn.alpha = 0;
+      this.soundOnBtn.exists = false;
+    } else {
+      this.soundOffBtn.alpha = 0;
+      this.soundOffBtn.exists = false;
+    }
+
+    this.board = game.add.group();
+
+    var board = game.add.image(game.width * 0.5 - 110, game.height * 0.5 + 40, 'board');
+
+    this.board.add(board);
+    this.board.alpha = 0;
+    this.board.y = game.height;
+
+    var textStyle = {
+      font: '18px Verdana',
+      fill: '#424242'
+    };
+
+    this.graphics = this.game.add.text(game.width * 0.5, game.height * 0.5 + 75, 'Graphics: kenney.nl', textStyle);
+    this.graphics.anchor.set(0.5);
+
+    this.board.add(this.graphics);
+
+    this.music = this.game.add.text(game.width * 0.5, game.height * 0.5 + 100, 'Music: ', textStyle);
+    this.music.anchor.set(0.5);
+
+    this.board.add(this.music);
+
+    this.song = this.game.add.text(game.width * 0.5, game.height * 0.5 + 125, 'Eric Skiff - Chibi Ninja', textStyle);
+    this.song.anchor.set(0.5);
+
+    this.board.add(this.song);
+
   },
 
   update: function() {
@@ -850,7 +927,12 @@ BasicGame.Menu.prototype = {
 
   showOptions: function() {
 
+    if (this.board.alpha === 1) {
+      this.add.tween(this.board).to({alpha:0, y: game.height}, 500, Phaser.Easing.Exponential.Out, true, 0);
+    }
+
     var menuOut = this.add.tween(this.menu).to({y: -100, alpha: 0}, 250, Phaser.Easing.Cubic.Out, true);
+    var minMenuOut = this.add.tween(this.minMenu).to({y: -100, alpha: 0}, 250, Phaser.Easing.Cubic.Out, true);
     var playerIn = this.add.tween(this.player).to({x: game.width * 0.5}, 900, Phaser.Easing.Default, false);
     playerIn.onComplete.add(function() {
       this.player.play('stand');
@@ -874,6 +956,7 @@ BasicGame.Menu.prototype = {
     playerOut.onComplete.add(function() {
       this.player.x = -24;
       this.add.tween(this.menu).to({y: 0, alpha: 1}, 250, Phaser.Easing.Cubic.Out, true);
+      this.add.tween(this.minMenu).to({y: 0, alpha: 1}, 250, Phaser.Easing.Cubic.Out, true);
     }, this);
 
     var optionsOut = this.add.tween(this.bgSelect).to({x: game.width, alpha: 0}, 250, Phaser.Easing.Cubic.Out, true);
@@ -947,7 +1030,65 @@ BasicGame.Menu.prototype = {
 
       this.config.playerType = this.player.typesArr[this.typeCounter];
     }
-  }
+  },
+
+  mute: function(item) {
+
+    var btnOn = null;
+    var btnOff = null;
+
+    if (item.type === 'music') {
+      btnOn = this.musicOnBtn;
+      btnOff = this.musicOffBtn;
+    } else {
+      btnOn = this.soundOnBtn;
+      btnOff = this.soundOffBtn;
+    }
+
+    if (item.action === 'off') {
+      if (item.type === 'music') {
+        this.config.music_mute = true;
+      } else {
+        this.config.sound_mute = true;
+      }
+
+      var t = this.add.tween(btnOn).to({alpha: 0}, 100);
+      t.onComplete.add(function() {
+        this.add.tween(btnOff).to({alpha: 1}, 100, Phaser.Easing.Default, true);
+        btnOn.exists = false;
+        btnOff.exists = true;
+      }, this);
+      t.start();
+    } else if (item.action === 'on') {
+      if (item.type === 'music') {
+        this.config.music_mute = false;
+      } else {
+        this.config.sound_mute = false;
+      }
+
+      var t = this.add.tween(btnOff).to({alpha: 0}, 100);
+      t.onComplete.add(function() {
+        this.add.tween(btnOn).to({alpha: 1}, 100, Phaser.Easing.Default, true);
+        btnOff.exists = false;
+        btnOn.exists = true;
+      }, this);
+      t.start();
+    }
+
+  },
+
+  help: function() {
+
+    if (this.board.alpha === 1) {
+      this.add.tween(this.board).to({alpha:0, y: game.height}, 500, Phaser.Easing.Exponential.Out, true, 0);
+    } else {
+      this.add.tween(this.board).to({alpha:1, y: 0}, 500, Phaser.Easing.Exponential.Out, true, 0);
+    }
+
+
+
+  },
+
 };
 BasicGame.Preload = function() {
 
@@ -1016,7 +1157,7 @@ BasicGame.Preload.prototype = {
   }
 
 };
-var game = new Phaser.Game(300, 420, Phaser.AUTO, 'game_cont');
+var game = new Phaser.Game(300, 420, Phaser.Canvas, 'game_cont');
 
 game.state.add('Boot', BasicGame.Boot);
 game.state.add('Preload', BasicGame.Preload);

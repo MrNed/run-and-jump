@@ -17,7 +17,8 @@ BasicGame.Game = function(game) {
   this.firstPlay = true;
 
   this.phase = 1;
-
+  this.phaseTwoStartScore = 15;
+  this.phaseThreeStartScore = 30;
 };
 
 BasicGame.Game.prototype = {
@@ -33,9 +34,11 @@ BasicGame.Game.prototype = {
   },
 
   create: function() {
-    this.music = game.add.audio('music');
-    this.music.play();
-    this.music.volume = 0.75;
+    this.music = game.add.audio('music', 0.75, true);
+
+    if (!this.config.music_mute) {
+      this.music.play();
+    }
 
     this.hitSound = game.add.audio('hit');
 
@@ -45,14 +48,13 @@ BasicGame.Game.prototype = {
     this.ground = new Ground(game, this.config.bgType);
     this.ground.scroll(-150);
 
-    this.player = new Player(game, -20, game.height - 74, 'sprites', this.config.playerType);
+    this.player = new Player(game, -20, game.height - 74, 'sprites', this.config.playerType, this.config.sound_mute);
 
     var runInto = this.add.tween(this.player).to({x: 48}, 500, Phaser.Easing.Default, true);
     runInto.onComplete.add(function() {
       this.player.allowJump = true;
       this.timer.start();
     }, this);
-
 
     this.enemies = new Enemies(game);
 
@@ -112,12 +114,11 @@ BasicGame.Game.prototype = {
       this.timer.update(game.time.time);
     }
 
-
-    if (this.score >= 10 && this.phase === 1 && this.player.onGround()) {
+    if (this.score >= this.phaseTwoStartScore && this.phase === 1 && this.player.onGround()) {
       this.moveToNextPhase(2);
     }
 
-    if (this.score >= 20 && this.phase === 2 && this.player.onGround()) {
+    if (this.score >= this.phaseThreeStartScore && this.phase === 2 && this.player.onGround()) {
       this.moveToNextPhase(3);
     }
 
@@ -139,7 +140,9 @@ BasicGame.Game.prototype = {
 
   die: function(player, enemy) {
 
-    this.hitSound.play();
+    if (!this.config.sound_mute) {
+      this.hitSound.play();
+    }
 
     this.spawn = false;
 
@@ -219,6 +222,8 @@ BasicGame.Game.prototype = {
 
       this.spawn = true;
       this.enemies.maxSpeed = 275;
+      this.minSpawnRate = 1200;
+      this.maxSpawnRate = 2000;
       this.enemies.direction = 'random';
     }
 

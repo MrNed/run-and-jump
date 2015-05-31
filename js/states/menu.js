@@ -14,7 +14,9 @@ BasicGame.Menu.prototype = {
       config = {
         bgType: 'grass',
         playerType: 'blue',
-        bestScore: 0
+        bestScore: 0,
+        music_mute: false,
+        sound_mute: false
       };
     }
 
@@ -85,6 +87,80 @@ BasicGame.Menu.prototype = {
     this.startBtn.alpha = 0;
     this.startBtn.input.useHandCursor = true;
 
+    this.minMenu = this.add.group();
+
+    this.helpBtn = this.add.button(5, 5, 'sprites', this.help, this, 'help_btn.png', 'help_btn.png', 'help_btn_hover.png');
+    this.helpBtn.input.useHandCursor = true;
+    this.minMenu.add(this.helpBtn);
+
+    this.musicOnBtn = this.add.button(game.width - 28, 6, 'sprites', this.mute, this, 'music_on_btn.png', 'music_on_btn.png', 'music_on_btn_hover.png');
+    this.musicOnBtn.input.useHandCursor = true;
+    this.musicOnBtn.action = 'off';
+    this.musicOnBtn.type = 'music';
+    this.minMenu.add(this.musicOnBtn);
+
+    this.musicOffBtn = this.add.button(game.width - 28, 6, 'sprites', this.mute, this, 'music_off_btn.png', 'music_off_btn.png', 'music_off_btn_hover.png');
+    this.musicOffBtn.input.useHandCursor = true;
+    this.musicOffBtn.action = 'on';
+    this.musicOffBtn.type = 'music';
+    this.minMenu.add(this.musicOffBtn);
+
+    if (this.config.music_mute) {
+      this.musicOnBtn.alpha = 0;
+      this.musicOnBtn.exists = false;
+    } else {
+      this.musicOffBtn.alpha = 0;
+      this.musicOffBtn.exists = false;
+    }
+
+    this.soundOnBtn = this.add.button(game.width - 56, 9, 'sprites', this.mute, this, 'sound_on_btn.png', 'sound_on_btn.png', 'sound_on_btn_hover.png');
+    this.soundOnBtn.input.useHandCursor = true;
+    this.soundOnBtn.action = 'off';
+    this.soundOnBtn.type = 'sound';
+    this.minMenu.add(this.soundOnBtn);
+
+    this.soundOffBtn = this.add.button(game.width - 56, 9, 'sprites', this.mute, this, 'sound_off_btn.png', 'sound_off_btn.png', 'sound_off_btn_hover.png');
+    this.soundOffBtn.input.useHandCursor = true;
+    this.soundOffBtn.action = 'on';
+    this.soundOffBtn.type = 'sound';
+    this.minMenu.add(this.soundOffBtn);
+
+    if (this.config.sound_mute) {
+      this.soundOnBtn.alpha = 0;
+      this.soundOnBtn.exists = false;
+    } else {
+      this.soundOffBtn.alpha = 0;
+      this.soundOffBtn.exists = false;
+    }
+
+    this.board = game.add.group();
+
+    var board = game.add.image(game.width * 0.5 - 110, game.height * 0.5 + 40, 'board');
+
+    this.board.add(board);
+    this.board.alpha = 0;
+    this.board.y = game.height;
+
+    var textStyle = {
+      font: '18px Verdana',
+      fill: '#424242'
+    };
+
+    this.graphics = this.game.add.text(game.width * 0.5, game.height * 0.5 + 75, 'Graphics: kenney.nl', textStyle);
+    this.graphics.anchor.set(0.5);
+
+    this.board.add(this.graphics);
+
+    this.music = this.game.add.text(game.width * 0.5, game.height * 0.5 + 100, 'Music: ', textStyle);
+    this.music.anchor.set(0.5);
+
+    this.board.add(this.music);
+
+    this.song = this.game.add.text(game.width * 0.5, game.height * 0.5 + 125, 'Eric Skiff - Chibi Ninja', textStyle);
+    this.song.anchor.set(0.5);
+
+    this.board.add(this.song);
+
   },
 
   update: function() {
@@ -101,7 +177,12 @@ BasicGame.Menu.prototype = {
 
   showOptions: function() {
 
+    if (this.board.alpha === 1) {
+      this.add.tween(this.board).to({alpha:0, y: game.height}, 500, Phaser.Easing.Exponential.Out, true, 0);
+    }
+
     var menuOut = this.add.tween(this.menu).to({y: -100, alpha: 0}, 250, Phaser.Easing.Cubic.Out, true);
+    var minMenuOut = this.add.tween(this.minMenu).to({y: -100, alpha: 0}, 250, Phaser.Easing.Cubic.Out, true);
     var playerIn = this.add.tween(this.player).to({x: game.width * 0.5}, 900, Phaser.Easing.Default, false);
     playerIn.onComplete.add(function() {
       this.player.play('stand');
@@ -125,6 +206,7 @@ BasicGame.Menu.prototype = {
     playerOut.onComplete.add(function() {
       this.player.x = -24;
       this.add.tween(this.menu).to({y: 0, alpha: 1}, 250, Phaser.Easing.Cubic.Out, true);
+      this.add.tween(this.minMenu).to({y: 0, alpha: 1}, 250, Phaser.Easing.Cubic.Out, true);
     }, this);
 
     var optionsOut = this.add.tween(this.bgSelect).to({x: game.width, alpha: 0}, 250, Phaser.Easing.Cubic.Out, true);
@@ -198,5 +280,63 @@ BasicGame.Menu.prototype = {
 
       this.config.playerType = this.player.typesArr[this.typeCounter];
     }
-  }
+  },
+
+  mute: function(item) {
+
+    var btnOn = null;
+    var btnOff = null;
+
+    if (item.type === 'music') {
+      btnOn = this.musicOnBtn;
+      btnOff = this.musicOffBtn;
+    } else {
+      btnOn = this.soundOnBtn;
+      btnOff = this.soundOffBtn;
+    }
+
+    if (item.action === 'off') {
+      if (item.type === 'music') {
+        this.config.music_mute = true;
+      } else {
+        this.config.sound_mute = true;
+      }
+
+      var t = this.add.tween(btnOn).to({alpha: 0}, 100);
+      t.onComplete.add(function() {
+        this.add.tween(btnOff).to({alpha: 1}, 100, Phaser.Easing.Default, true);
+        btnOn.exists = false;
+        btnOff.exists = true;
+      }, this);
+      t.start();
+    } else if (item.action === 'on') {
+      if (item.type === 'music') {
+        this.config.music_mute = false;
+      } else {
+        this.config.sound_mute = false;
+      }
+
+      var t = this.add.tween(btnOff).to({alpha: 0}, 100);
+      t.onComplete.add(function() {
+        this.add.tween(btnOn).to({alpha: 1}, 100, Phaser.Easing.Default, true);
+        btnOff.exists = false;
+        btnOn.exists = true;
+      }, this);
+      t.start();
+    }
+
+  },
+
+  help: function() {
+
+    if (this.board.alpha === 1) {
+      this.add.tween(this.board).to({alpha:0, y: game.height}, 500, Phaser.Easing.Exponential.Out, true, 0);
+    } else {
+      this.add.tween(this.board).to({alpha:1, y: 0}, 500, Phaser.Easing.Exponential.Out, true, 0);
+    }
+
+
+
+  },
+
 };

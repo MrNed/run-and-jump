@@ -25,13 +25,6 @@ var Board = function(game, config) {
 
   this.board.add(repeatButton);
 
-  var textStyle = {
-    font: '24px Share Tech Mono',
-    fill: '#FBFBFB',
-    stroke: '#424242',
-    strokeThickness: 3
-  };
-
   this.scoreText = game.add.bitmapText(game.width / 2, 120, 'font', '0', 22);
   this.scoreField = game.add.image(game.width * 0.5 - 100, 120, 'score');
   this.bestText = game.add.bitmapText(game.width / 2, 180, 'font', '0', 22);
